@@ -234,9 +234,10 @@
 
 (pkg centered-cursor-mode
 	:diminish centered-cursor-mode
-	:config
+	:preface
 	(setq-default require-final-newline nil)
 	(setq mode-require-final-newline nil)
+	:config
 	(global-centered-cursor-mode 1))
 
 (pkg evil-collection
