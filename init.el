@@ -3,6 +3,10 @@
 (tool-bar-mode -1)
 (save-place-mode 1)
 
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(unless (file-exists-p custom-file)
+		(write-region "" nil custom-file))
+
 (defmacro measure-time (&rest body)
 	(declare (indent 0))
 	"Measure the time it takes to evaluate BODY."
@@ -627,24 +631,3 @@
 		:after (treemacs))
 	(pkg treemacs-magit
 		:after (treemacs magit)))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files '("~/Documents/test.org"))
- '(safe-local-variable-values
-	 '((eval write-region
-					 (point-min)
-					 (point-max)
-					 (concat "~/bkp/"
-									 (file-name-nondirectory
-										(buffer-file-name))))))
- '(warning-suppress-log-types '((comp))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
