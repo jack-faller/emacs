@@ -4,7 +4,7 @@
 (save-place-mode 1)
 
 (defmacro measure-time (&rest body)
-	(declare (indent defun))
+	(declare (indent 0))
 	"Measure the time it takes to evaluate BODY."
 	`(let ((time (current-time)))
 		 ,@body
@@ -18,12 +18,24 @@
 							display-line-numbers-type 'relative)
 (setq display-line-numbers-type 'relative)
 
+(defmacro undo-group (&rest body)
+	"do the arguments as one undo section"
+	(declare (indent 0))
+	(let ((marker (gensym)))
+		`(let ((,marker (prepare-change-group)))
+			 (unwind-protect (atomic-change-group ,@body)
+				 (undo-amalgamate-change-group ,marker)))))
+
 (setq show-paren-delay 0)
 (show-paren-mode)
 (electric-pair-mode)
-(defmacro defprefix (name key)
-	`(defun ,name (&optional str)
-		 (kbd (concat ,key " " (or str "")))))
+(defmacro defprefix (name leader-key)
+	`(defun ,name (&rest args)
+		 "accepts either (&optional prefix keys) or (&optional keys)"
+		 (pcase args
+			 (`(,prefix ,keys) (kbd (concat prefix ,leader-key " " keys)))
+			 (`(,keys) (kbd (concat ,leader-key " " keys)))
+			 (`() (kbd ,leader-key)))))
 (defprefix leader "SPC")
 (defprefix alt-leader "\\")
 
@@ -32,7 +44,7 @@
 (setq-default rust-indent-offset tab-width)
 
 (defmacro interactive-chain (&rest args)
-	(declare (indent defun))
+	(declare (indent 0))
 	`(lambda () (interactive) ,@(mapcar #'cdr args)))
 
 (defvar bootstrap-version)
@@ -53,10 +65,10 @@
 
 (straight-use-package 'use-package)
 (defmacro pkg (name &rest args)
-	(declare (indent defun))
+	(declare (indent 1))
 	`(use-package ,name :straight t ,@args))
 (defmacro pkg-github (name repo &rest args)
-	(declare (indent defun))
+	(declare (indent 2))
 	`(use-package ,name
 		 :straight (,name
 								:type git
@@ -251,14 +263,16 @@
 	(add-hook 'scheme-mode-hook 'lispyville-mode)
 	(add-hook 'lisp-mode-hook 'lispyville-mode)
 	:init
-	(add-hook 'lispyville-mode-hook (cl-macrolet ((defto (name key) `(targets-define-to ,name ',name nil object :bind t :keys ,key)))
-																		(lambda ()
-																			(defto lispyville-comment "c")
-																			(defto lispyville-atom "a")
-																			(defto lispyville-list "f")
-																			(defto lispyville-sexp "x")
-																			(defto lispyville-function "d")
-																			(defto lispyville-string "s"))))
+	(add-hook 'lispyville-mode-hook
+						(cl-macrolet ((defto (name key)
+														`(targets-define-to ,name ',name nil object :bind t :keys ,key)))
+							(lambda ()
+								(defto lispyville-comment "c")
+								(defto lispyville-atom "a")
+								(defto lispyville-list "f")
+								(defto lispyville-sexp "x")
+								(defto lispyville-function "d")
+								(defto lispyville-string "s"))))
 	:config
 	(lispyville-set-key-theme '(operators
 															c-w
@@ -270,6 +284,25 @@
 															(escape insert)))
 	(evil-define-key '(normal visual) lispyville-mode-map
 		(alt-leader) 'evil-eval)
+	;; TODO make this amalgamate undo with the inserted chars after
+	(defmacro surround-paren-insert (object at-end)
+		"surround object and instert at the given end (either start or end)"
+		`(lambda () (interactive)
+			 (apply 'evil-surround-region
+							(append (let* ((obj (,object))
+														 (start (car obj)))
+												(if (eq (char-after start) ?')
+														(cons (+ 1 start) (cdr obj))
+														obj))
+											'(?\))))
+			 ,@(if (eq at-end 'end)
+						 '((lispyville-up-list)
+							 (insert " ")
+							 (evil-insert 1))
+					 '((forward-char)
+						 (insert " ")
+						 (backward-char 1)
+						 (evil-insert 1)))))
 	;; TODO make these work for visual
 	(evil-define-key '(visual normal) lispyville-mode-map
 		(leader "(") 'lispy-wrap-round
@@ -281,6 +314,10 @@
 		(kbd "M-j") 'lispyville-drag-forward
 		(kbd "M-k") 'lispyville-drag-backward
 		(leader "@") 'lispy-splice
+		(leader "w") (surround-paren-insert targets-inner-lispyville-sexp start)
+		(leader "W") (surround-paren-insert targets-inner-lispyville-sexp end)
+		(leader "i") (surround-paren-insert targets-a-lispyville-list start)
+		(leader "I") (surround-paren-insert targets-a-lispyville-list end)
 		(leader "s") 'lispy-split
 		(leader "j") 'lispy-join
 		(leader "r") 'lispy-raise
@@ -294,11 +331,50 @@
 	:defer t
 	:ensure nil
 	:preface
+	(add-hook 'org-mode-hook 'org-indent-mode)
 	(evil-define-key 'normal 'global
 		(leader "a") 'org-agenda)
 	:init
 	(setq org-todo-keywords
-				'((sequence "TODO" "IN-PROGRESS" "DONE"))))
+				'((sequence "TODO" "IN-PROGRESS" "DONE")))
+	:config
+	(custom-set-faces
+	 '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
+	 '(org-level-2 ((t (:inherit outline-2 :height 1.4))))
+	 '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
+	 '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
+	 '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
+	(setq org-cycle-level-faces nil))
+
+(pkg org-superstar
+	:defer t
+	:after (org)
+	:preface (add-hook 'org-mode-hook 'org-superstar-mode)
+	:init
+	(setq org-superstar-leading-bullet "."))
+
+(pkg org-roam
+	:after (org)
+	:preface
+	(setq org-roam-v2-ack t)
+	(setq org-roam-directory (file-truename "~/org"))
+	(evil-define-key 'insert org-mode-map
+		(leader "C-" "n") 'org-roam-node-insert)
+	(evil-define-key 'normal 'global
+		(leader "nf") 'org-roam-node-find)
+	(evil-define-key 'normal org-mode-map
+		(leader "nl") 'org-roam-buffer-toggle
+		(leader "ng") 'org-roam-graph
+		(leader "ni") 'org-roam-node-insert
+		(leader "nc") 'org-roam-capture
+		;; Dailies
+		;; (leader "n j") 'org-roam-dailies-capture-today
+		)
+	:config
+	(org-roam-db-autosync-mode)
+	;; If using org-roam-protocol
+	;; (require 'org-roam-protocol)
+	)
 
 (pkg evil-org
 	:defer t
@@ -308,10 +384,23 @@
 	:config
 	(require 'evil-org-agenda)
 	(evil-org-agenda-set-keys)
+	(evil-define-key 'insert org-mode-map
+		(kbd "M-h") 'org-metaleft
+		(kbd "M-l") 'org-metaright)
+	(dolist (binds '(("." . org-time-stamp)
+									 ("l" . org-insert-link)))
+		(evil-define-key 'normal org-mode-map
+			(leader (car binds)) (cdr binds))
+		(evil-define-key 'insert org-mode-map
+			(leader "C-" (car binds)) (cdr binds)))
 	(evil-define-key 'normal org-mode-map
 		(alt-leader "a") 'org-agenda-file-to-front
 		(alt-leader "r") 'org-remove-file
-		(alt-leader "t") 'org-time-stamp
+		(leader "l") 'org-insert-link
+		(leader "d") 'org-deadline
+		(leader "s") 'org-schedule
+		(leader "p") 'org-priority
+		(leader "RET") 'org-open-at-point
 		(leader "t") 'org-shiftright
 		(leader "T") 'org-shiftleft))
 
@@ -322,6 +411,7 @@
 (pkg selectrum
 	:config
 	(evil-define-key '(insert normal) selectrum-minibuffer-map
+		(kbd "M-RET") 'selectrum-submit-exact-input
 		(kbd "M-TAB") 'selectrum-insert-current-candidate
 		(kbd "TAB") 'selectrum-next-candidate
 		(kbd "<backtab>") 'selectrum-previous-candidate)
@@ -380,27 +470,11 @@
 	(unless all-the-icons-fonts-installed?
 		(all-the-icons-install-fonts t)))
 
-; why can't i have nice things?
-
-; quickhelp doesn't work with tng
-;; (define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin)
 (pkg pos-tip)
-	;; (require 'company-quickhelp "~/code/company-quickhelp/company-quickhelp.el")
 (pkg-github company-quickhelp "jack-faller/company-quickhelp"
 	:init
 	(add-hook 'company-tng-mode-hook 'company-quickhelp-mode)
-	(setq company-quickhelp-delay 0.05))
-
-;; (pkg company-quickhelp
-;; 	:after (company)
-;; 	:preface
-;; 	:config
-;; 	(add-hook 'company-tng-mode-hook 'company-quickhelp-mode)
-;; 	;; (add-hook 'company-quickhelp-mode-hook (lambda () (add-to-list 'company-frontends 'company-quickhelp-frontend :append)))
-;; 	;; (add-hook 'company-tng-mode-hook (lambda ()
-;; 	;; 															(company-quickhelp-mode)
-;; 	;; 															(push 'company-quickhelp-mode company-frontends)))
-;; 	(setq company-quickhelp-delay 0.05))
+	(setq company-quickhelp-delay 0.1))
 
 ;; (pkg company-box
 ;; 	:defer t
@@ -524,6 +598,7 @@
 	(setq highlight-indent-guides-method 'character))
 
 (pkg magit
+	:after (evil-collection)
 	:defer t
 	:preface
 	(evil-define-key 'normal 'global
@@ -532,12 +607,12 @@
 		(kbd "M-h") 'magit-section-up
 		(kbd "M-j") 'magit-section-forward-sibling
 		(kbd "M-k") 'magit-section-backward-sibling))
+
 (pkg treemacs
 	:defer t
 	:preface
 	(evil-define-key 'normal 'global
 		"gt" 'treemacs)
-	:config
 	(pkg treemacs-evil
 		:after (treemacs evil))
 	(pkg treemacs-all-the-icons
@@ -556,7 +631,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files nil)
+ '(org-agenda-files '("~/Documents/test.org"))
  '(safe-local-variable-values
 	 '((eval write-region
 					 (point-min)
