@@ -355,6 +355,7 @@
 	(setq org-superstar-leading-bullet "."))
 
 (pkg org-roam
+	:defer t
 	:after (org)
 	:preface
 	(setq org-roam-v2-ack t)
