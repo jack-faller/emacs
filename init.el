@@ -245,6 +245,7 @@
 	(evil-collection-init)
 	(dolist (i evil-collection-minibuffer-maps)
 		(evil-define-key 'normal (eval i)
+			"cc" (lambda () (interactive) (evil-change (line-beginning-position) (line-end-position)))
 			"j" 'previous-complete-history-element
 			"k" 'next-complete-history-element)))
 
