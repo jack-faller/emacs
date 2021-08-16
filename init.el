@@ -284,10 +284,10 @@
 															(escape insert)))
 	(evil-define-key '(normal visual) lispyville-mode-map
 		(alt-leader) 'evil-eval)
-	;; TODO make this amalgamate undo with the inserted chars after
 	(defmacro surround-paren-insert (object at-end)
 		"surround object and instert at the given end (either start or end)"
 		`(lambda () (interactive)
+			 (evil-start-undo-step)
 			 (apply 'evil-surround-region
 							(append (let* ((obj (,object))
 														 (start (car obj)))
