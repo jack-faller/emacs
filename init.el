@@ -363,20 +363,20 @@
 	:defer t
 	:after (org)
 	:preface
-	(setq org-roam-v2-ack t)
-	(setq org-roam-directory (file-truename "~/org"))
+	(setq org-roam-v2-ack t
+				org-roam-completion-everywhere t
+				org-roam-directory (file-truename "~/org"))
 	(evil-define-key 'insert org-mode-map
 		(leader "C-" "n") 'org-roam-node-insert)
 	(evil-define-key 'normal 'global
 		(leader "nf") 'org-roam-node-find)
 	(evil-define-key 'normal org-mode-map
-		(leader "nl") 'org-roam-buffer-toggle
+		(leader "nb") 'org-roam-buffer-toggle
 		(leader "ng") 'org-roam-graph
 		(leader "ni") 'org-roam-node-insert
 		(leader "nc") 'org-roam-capture
-		;; Dailies
-		;; (leader "n j") 'org-roam-dailies-capture-today
-		)
+		(leader "nt") 'org-roam-dailies-capture-today
+		(leader "na") 'org-roam-alias-add)
 	:config
 	(org-roam-db-autosync-mode)
 	;; If using org-roam-protocol
