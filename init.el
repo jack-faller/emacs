@@ -41,7 +41,9 @@
 			 (`(,keys) (kbd (concat ,leader-key " " keys)))
 			 (`() (kbd ,leader-key)))))
 (defprefix leader "SPC")
+(defprefix insert-leader "M-;")
 (defprefix alt-leader "\\")
+(defprefix insert-alt-leader "M-\\")
 
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
@@ -367,7 +369,7 @@
 				org-roam-completion-everywhere t
 				org-roam-directory (file-truename "~/org"))
 	(evil-define-key 'insert org-mode-map
-		(leader "C-" "n") 'org-roam-node-insert)
+		(insert-leader "n") 'org-roam-node-insert)
 	(evil-define-key 'normal 'global
 		(leader "nf") 'org-roam-node-find)
 	(evil-define-key 'normal org-mode-map
@@ -402,7 +404,7 @@
 		(evil-define-key 'normal org-mode-map
 			(leader (car binds)) (cdr binds))
 		(evil-define-key 'insert org-mode-map
-			(leader "C-" (car binds)) (cdr binds)))
+			(insert-leader (car binds)) (cdr binds)))
 	(evil-define-key 'normal org-mode-map
 		(alt-leader "a") 'org-agenda-file-to-front
 		(alt-leader "r") 'org-remove-file
