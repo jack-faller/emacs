@@ -357,7 +357,7 @@
 	:after (org)
 	:preface (add-hook 'org-mode-hook 'org-superstar-mode)
 	:init
-	(setq org-superstar-leading-bullet "."))
+	(setq org-superstar-leading-bullet "·"))
 
 (pkg org-roam
 	:defer t
