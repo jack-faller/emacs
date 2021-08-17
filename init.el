@@ -379,6 +379,8 @@
 		(leader "ng") 'org-roam-graph
 		(leader "ni") 'org-roam-node-insert
 		(leader "nc") 'org-roam-capture
+		; node new
+		(leader "nn") 'org-id-get-create
 		(leader "nt") 'org-roam-dailies-capture-today
 		(leader "na") 'org-roam-alias-add)
 	:config
