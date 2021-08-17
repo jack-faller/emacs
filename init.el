@@ -403,6 +403,7 @@
 	(evil-define-key 'normal org-mode-map
 		(alt-leader "a") 'org-agenda-file-to-front
 		(alt-leader "r") 'org-remove-file
+		(leader "c") 'org-ctrl-c-ctrl-c
 		(leader "l") 'org-insert-link
 		(leader "d") 'org-deadline
 		(leader "s") 'org-schedule
