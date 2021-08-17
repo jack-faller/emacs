@@ -359,7 +359,9 @@
 	:after (org)
 	:preface (add-hook 'org-mode-hook 'org-superstar-mode)
 	:init
-	(setq org-superstar-leading-bullet "·"))
+	(setq org-superstar-leading-bullet "·")
+	:config
+	(cl-delete-if (lambda (elt) (eq (car elt) ?+)) org-superstar-item-bullet-alist))
 
 (pkg org-roam
 	:defer t
