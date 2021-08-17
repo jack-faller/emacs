@@ -560,6 +560,8 @@
 	:preface
 	(add-hook 'prog-mode-hook 'flyspell-prog-mode)
 	(add-hook 'text-mode-hook 'flyspell-mode)
+	:init
+	(setq flyspell-issue-message-flag nil)
 	:config
 	(evil-define-key 'normal flyspell-mode-map
 		"[s" 'evil-prev-flyspell-error
