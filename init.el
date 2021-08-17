@@ -394,6 +394,9 @@
 	(evil-define-key 'insert org-mode-map
 		(kbd "M-h") 'org-metaleft
 		(kbd "M-l") 'org-metaright)
+	(evil-define-key 'normal org-capture-mode-map
+		(leader "k") 'org-capture-kill
+		(leader "c") 'org-capture-finalize)
 	(dolist (binds '(("." . org-time-stamp)
 									 ("l" . org-insert-link)))
 		(evil-define-key 'normal org-mode-map
