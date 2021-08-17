@@ -556,6 +556,15 @@
 			"q" (interactive-chain 'kill-compilation 'quit-window)))
 	(setq projectile-project-search-path '("~/code/")))
 
+(pkg flyspell
+	:preface
+	(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+	(add-hook 'text-mode-hook 'flyspell-mode)
+	:config
+	(evil-define-key 'normal flyspell-mode-map
+		"[s" 'evil-prev-flyspell-error
+		"]s" 'evil-next-flyspell-error))
+
 (pkg flycheck
 	:defer t
 	:preface
