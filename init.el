@@ -115,8 +115,9 @@
 	:diminish undo-tree-mode
 	:init
 	(setq undo-tree-visualizer-timestamps t
-				undo-tree-visualizer-lazy-drawing nil)
-	;; this is broken, the after save hook below fixes it, but it still needs to be here undo-tree-auto-save-history t)
+				undo-tree-visualizer-lazy-drawing nil
+				undo-tree-auto-save-history t)
+	;; this is broken, the after save hook below fixes it, but it still needs to be here
 	(let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
 		(setq undo-tree-history-directory-alist (list (cons "." undo-dir))))
 	:config
