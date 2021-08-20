@@ -10,9 +10,11 @@
 (defmacro measure-time (&rest body)
 	(declare (indent 0))
 	"Measure the time it takes to evaluate BODY."
-	`(let ((time (current-time)))
-		 ,@body
-		 (message "%.06f" (float-time (time-since time)))))
+	(let ((time (gensym))(result (gensym)))
+		`(let* ((,time (current-time))
+						(,result (progn ,@body)))
+			 (message "%.06f" (float-time (time-since ,time)))
+			 (cl-values ,result ,time))))
 
 (add-to-list 'default-frame-alist '(font . "Iosevka 9"))
 (set-face-attribute 'default t :font "Iosevka")
