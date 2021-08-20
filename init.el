@@ -646,7 +646,7 @@
 
 (pkg page-break-lines
 	:config
-	(page-break-lines-mode))
+	(global-page-break-lines-mode))
 
 (pkg highlight-indent-guides
 	:diminish highlight-indent-guides-mode
