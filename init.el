@@ -516,6 +516,8 @@
 		(kbd "<backtab>") 'company-select-previous
 		(kbd "M-TAB") 'company-complete-common
 		(kbd "M-q") (interactive-chain 'company-select-first 'company-select-previous)
+		(kbd "<next>") 'company-next-page
+		(kbd "<prior>") 'company-previous-page
 		(kbd "<return>") nil
 		(kbd "RET") nil)
 	(global-company-mode))
