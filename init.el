@@ -3,6 +3,8 @@
 (tool-bar-mode -1)
 (save-place-mode 1)
 
+(setq pgtk-wait-for-event-timeout nil)
+
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (unless (file-exists-p custom-file)
 		(write-region "" nil custom-file))
