@@ -7,6 +7,23 @@
 (unless (file-exists-p custom-file)
 		(write-region "" nil custom-file))
 
+(defun map-files (fun file-list)
+	"do fun with the buffer as each file in file-list"
+	(dolist (file file-list)
+		(let ((buf (find-file file)))
+			(goto-char (point-min)) ; in case file is open
+			(funcall fun)
+			(save-buffer)
+			(kill-buffer buf))))
+
+(defmacro dofiles (fspec &rest body)
+	"map-files body across fspec where fspec is (directory regexp) or a list of such forms"
+	(declare (indent 1))
+	(require 'find-lisp)
+	(when (stringp (car fspec)) (setq fspec (list fspec)))
+	`(map-files (lambda () ,@body)
+							(mapcan (lambda (e) (apply 'find-lisp-find-files e)) ',fspec)))
+
 (defmacro measure-time (&rest body)
 	(declare (indent 0))
 	"Measure the time it takes to evaluate BODY."
