@@ -390,22 +390,37 @@
 	(setq org-roam-v2-ack t
 				org-roam-completion-everywhere t
 				org-roam-directory (file-truename "~/org"))
-	(evil-define-key 'insert org-mode-map
-		(insert-leader "n") 'org-roam-node-insert)
 	(evil-define-key 'normal 'global
 		(leader "nf") 'org-roam-node-find)
+	:config
+	(setq org-roam-capture-templates
+				'(("d" "default" plain "\n%?"
+					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+					 :unnarrowed t)
+					("c" "computer science A-level" plain "\n%?"
+					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :CSAL:\n")
+					 :unnarrowed t)
+					("p" "physics A-level" plain "\n%?"
+					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :PAL:\n")
+					 :unnarrowed t)
+					("m" "maths A-level" plain "\n%?"
+					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :MAL:\n")
+					 :unnarrowed t)
+					("f" "further maths A-level" plain "\n%?"
+					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :FMAL:\n")
+					 :unnarrowed t)))
+	(evil-define-key 'insert org-mode-map
+		(insert-leader "n") 'org-roam-node-insert)
 	(evil-define-key 'normal org-mode-map
 		(leader "nb") 'org-roam-buffer-toggle
 		(leader "ng") 'org-roam-graph
 		(leader "ni") 'org-roam-node-insert
 		(leader "nc") 'org-roam-capture
-		; node new
 		(leader "nn") 'org-id-get-create
 		(leader "nt") 'org-roam-tag-add
 		(leader "nT") 'org-roam-tag-remove
 		(leader "nd") 'org-roam-dailies-capture-today
 		(leader "na") 'org-roam-alias-add)
-	:config
 	(org-roam-db-autosync-mode)
 	;; If using org-roam-protocol
 	;; (require 'org-roam-protocol)
