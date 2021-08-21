@@ -364,7 +364,11 @@
 	:preface
 	(add-hook 'org-mode-hook 'org-indent-mode)
 	(evil-define-key 'normal 'global
-		(global-leader "a") 'org-agenda)
+		(global-leader "a") 'org-agenda
+		(global-leader "A") (lambda () (interactive)
+													(require 'org-roam)
+													(org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
+													(goto-char (point-max))))
 	:init
 	(setq org-todo-keywords
 				'((sequence "TODO" "IN-PROGRESS" "DONE")))
