@@ -617,10 +617,10 @@
 (pkg lsp-mode
 	:defer t
 	:after (company)
-	:config
-	(add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration)
+	:init
 	(setq lsp-eldoc-enable-hover nil)
-	;; not sure why this doesn't work if it's on the lsp-mode-map
+	:config
+	(add-hook 'lsp-mode-hook 'evil-normal-state)
 	(evil-define-key 'normal lsp-mode-map
 		(leader "=") 'lsp-format-buffer
 		(leader "gd") 'lsp-find-definition
