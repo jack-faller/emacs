@@ -5,6 +5,8 @@
 
 (setq pgtk-wait-for-event-timeout nil)
 
+(setq inhibit-read-only t)
+
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (unless (file-exists-p custom-file)
 		(write-region "" nil custom-file))
