@@ -65,8 +65,8 @@
 			 (`() (kbd ,leader-key)))))
 (defprefix leader "SPC")
 (defprefix insert-leader "M-;")
-(defprefix alt-leader "\\")
-(defprefix insert-alt-leader "M-\\")
+(defprefix global-leader "\\")
+(defprefix insert-global-leader "M-\\")
 
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
@@ -314,8 +314,6 @@
 															commentary
 															slurp/barf-cp
 															(escape insert)))
-	(evil-define-key '(normal visual) lispyville-mode-map
-		(alt-leader) 'evil-eval)
 	(defmacro surround-paren-insert (object at-end)
 		"surround object and instert at the given end (either start or end)"
 		`(lambda () (interactive)
@@ -365,7 +363,7 @@
 	:preface
 	(add-hook 'org-mode-hook 'org-indent-mode)
 	(evil-define-key 'normal 'global
-		(leader "a") 'org-agenda)
+		(global-leader "a") 'org-agenda)
 	:init
 	(setq org-todo-keywords
 				'((sequence "TODO" "IN-PROGRESS" "DONE")))
@@ -395,7 +393,7 @@
 				org-roam-completion-everywhere t
 				org-roam-directory (file-truename "~/org"))
 	(evil-define-key 'normal 'global
-		(leader "nf") 'org-roam-node-find)
+		(global-leader "n") 'org-roam-node-find)
 	:config
 	(setq org-roam-capture-templates
 				'(("d" "default" plain "\n%?"
@@ -451,8 +449,8 @@
 		(evil-define-key 'insert org-mode-map
 			(insert-leader (car binds)) (cdr binds)))
 	(evil-define-key 'normal org-mode-map
-		(alt-leader "a") 'org-agenda-file-to-front
-		(alt-leader "r") 'org-remove-file
+		(leader "a") 'org-agenda-file-to-front
+		(leader "r") 'org-remove-file
 		(leader "c") 'org-ctrl-c-ctrl-c
 		(leader "l") 'org-insert-link
 		(leader "d") 'org-deadline
@@ -622,7 +620,7 @@
 	(add-hook 'lsp-mode-hook 'lsp-enable-which-key-integration)
 	(setq lsp-eldoc-enable-hover nil)
 	;; not sure why this doesn't work if it's on the lsp-mode-map
-	(evil-define-key 'normal 'global
+	(evil-define-key 'normal lsp-mode-map
 		(leader "=") 'lsp-format-buffer
 		(leader "gd") 'lsp-find-definition
 		(leader "gD") 'lsp-find-declaration
@@ -665,7 +663,7 @@
 	:defer t
 	:preface
 	(evil-define-key 'normal 'global
-		(leader "m") 'magit)
+		(global-leader "m") 'magit)
 	(evil-define-key 'normal magit-mode-map
 		(kbd "M-h") 'magit-section-up
 		(kbd "M-j") 'magit-section-forward-sibling
