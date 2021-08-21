@@ -223,6 +223,7 @@
 	(evil-define-key 'normal 'global
 		"U" 'evil-redo
 		(kbd "<escape>") 'evil-ex-nohighlight
+		(global-leader "s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
 		"S" (lambda () (interactive) (evil-ex "%s/"))
 		"gb" 'switch-to-buffer
 		"gB" 'ibuffer)
