@@ -5,8 +5,6 @@
 
 (setq pgtk-wait-for-event-timeout nil)
 
-(setq inhibit-read-only t)
-
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (unless (file-exists-p custom-file)
 		(write-region "" nil custom-file))
@@ -226,7 +224,7 @@
 		"U" 'evil-redo
 		(kbd "<escape>") 'evil-ex-nohighlight
 		"S" (lambda () (interactive) (evil-ex "%s/"))
-		"gb" 'view-buffer
+		"gb" 'switch-to-buffer
 		"gB" 'ibuffer)
 	(evil-define-key '(normal visual) 'global
 		(leader ";") 'execute-extended-command)
@@ -240,11 +238,11 @@
 		(kbd "M-RET") (lambda () (interactive)
 										(split-window-horizontally)
 										(evil-window-right 1)
-										(call-interactively #'view-buffer))
+										(call-interactively #'switch-to-buffer))
 		(kbd "M-DEL") (lambda () (interactive)
 										(split-window-vertically)
 										(evil-window-down 1)
-										(call-interactively #'view-buffer)))
+										(call-interactively #'switch-to-buffer)))
 	(evil-mode 1))
 
 (pkg evil-surround
