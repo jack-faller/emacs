@@ -54,13 +54,15 @@
 (setq show-paren-delay 0)
 (show-paren-mode)
 (electric-pair-mode)
-(defmacro defprefix (name leader-key)
-	`(defun ,name (&rest args)
-		 "accepts either (&optional prefix keys) or (&optional keys)"
-		 (pcase args
-			 (`(,prefix ,keys) (kbd (concat prefix ,leader-key " " keys)))
-			 (`(,keys) (kbd (concat ,leader-key " " keys)))
-			 (`() (kbd ,leader-key)))))
+(defmacro defprefix (name prefix-key)
+	`(progn
+		 (defvar ,name ,prefix-key)
+		 (defun ,name (&rest args)
+			 "accepts either (&optional prefix keys) or (&optional keys)"
+			 (pcase args
+				 (`(,prefix ,keys) (kbd (concat prefix ,prefix-key " " keys)))
+				 (`(,keys) (kbd (concat ,prefix-key " " keys)))
+				 (`() (kbd ,prefix-key))))))
 (defprefix leader "SPC")
 (defprefix insert-leader "M-;")
 (defprefix global-leader "\\")
