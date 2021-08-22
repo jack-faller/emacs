@@ -226,6 +226,8 @@
 		"U" 'evil-redo
 		(kbd "<escape>") 'evil-ex-nohighlight
 		(kbd "<global-leader>s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
+		(kbd "<global-leader>b") 'bookmark-jump
+		(kbd "<global-leader>B") 'bookmark-set
 		"S" (lambda () (interactive) (evil-ex "%s/"))
 		"gb" 'switch-to-buffer
 		"gB" 'ibuffer)
