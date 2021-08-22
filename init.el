@@ -183,42 +183,39 @@
 					(enh-ruby-mode ruby-send-region)
 					(python-mode python-shell-send-region)
 					(julia-mode julia-shell-run-region)))
-	(evil-define-operator evil-eval-elisp-replace (beg end)
-		"Evil operator for evaluating code."
-		:move-point nil
-		(interactive "<r>")
-		(let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
-			(evil-delete beg end nil ?_)
-			(message "%S" result)
-			(insert (prin1-to-string result))))
-	(evil-define-operator evil-eval (beg end)
-		"Evil operator for evaluating code."
-		:move-point nil
-		(interactive "<r>")
-		(let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
-					 (f-a (cdr-safe ele))
-					 (func (car-safe f-a))
-					 (args (cdr-safe f-a)))
-			(if (fboundp func)
-					(apply func beg end args)
-				(eval-region beg end t))))
-	(evil-define-operator evil-replace-with-reg (beg end type register)
-		"Evil operator for evaluating code."
-		(interactive "<R><x>")
-		(evil-delete beg end type ?_)
-		(evil-paste-before 1 register))
-	(evil-define-operator evil-comment (beg end)
-		"Evil operator for evaluating code."
-		(interactive "<r>")
-		(comment-or-uncomment-region beg end))
 	(evil-define-key 'motion 'global
 		(kbd "M-e") 'evil-backward-word-end
 		(kbd "M-E") 'evil-backward-WORD-end)
 	(evil-define-key '(normal visual) 'global
-		"ge" 'evil-eval
-		"gE" 'evil-eval-elisp-replace
-		"gc" 'evil-comment
-		"gs" 'evil-replace-with-reg)
+		(leader ";") 'execute-extended-command
+		"ge" (evil-define-operator evil-eval (beg end)
+					 "Evil operator for evaluating code."
+					 :move-point nil
+					 (interactive "<r>")
+					 (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
+									(f-a (cdr-safe ele))
+									(func (car-safe f-a))
+									(args (cdr-safe f-a)))
+						 (if (fboundp func)
+								 (apply func beg end args)
+							 (eval-region beg end t))))
+		"gE" (evil-define-operator evil-eval-elisp-replace (beg end)
+					 "Evil operator for evaluating code."
+					 :move-point nil
+					 (interactive "<r>")
+					 (let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
+						 (evil-delete beg end nil ?_)
+						 (message "%S" result)
+						 (insert (prin1-to-string result))))
+		"gc" (evil-define-operator evil-comment (beg end)
+					 "Evil operator for evaluating code."
+					 (interactive "<r>")
+					 (comment-or-uncomment-region beg end))
+		"gs" (evil-define-operator evil-replace-with-reg (beg end type register)
+					 "Evil operator for evaluating code."
+					 (interactive "<R><x>")
+					 (evil-delete beg end type ?_)
+					 (evil-paste-before 1 register)))
 	(evil-define-key 'normal evil-ex-search-keymap
 		"j" 'next-line-or-history-element
 		"k" 'previous-line-or-history-element)
@@ -229,8 +226,6 @@
 		"S" (lambda () (interactive) (evil-ex "%s/"))
 		"gb" 'switch-to-buffer
 		"gB" 'ibuffer)
-	(evil-define-key '(normal visual) 'global
-		(leader ";") 'execute-extended-command)
 	(evil-define-key nil 'global
 		(kbd "C-h") 'evil-window-left
 		(kbd "C-j") 'evil-window-down
