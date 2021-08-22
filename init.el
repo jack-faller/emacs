@@ -55,13 +55,21 @@
 (show-paren-mode)
 (electric-pair-mode)
 
-(defmacro defevent (name)
-	`(defun ,(intern (concat "send-" (symbol-name name))) ()
-		(interactive)
-		(setq prefix-arg current-prefix-arg)
-		(push '(t . ,name) unread-command-events)))
-(defevent leader)
-(defevent global-leader)
+(defmacro translate (key states event)
+	"translate (kbd key) to (kbd event) in states (quoted as in evil-define-key but not nil)"
+	`(define-key key-translation-map
+		 (kbd ,key) (lambda (_)
+									(message "%S" evil-state)
+									(pcase evil-state
+										(,(if (symbolp (cadr states))
+													states
+												(cons 'or (mapcar (lambda (a) `',a) (cadr states))))
+										 (kbd ,event))
+										(_ (kbd ,key))))))
+(translate "SPC" '(normal visual) "<leader>")
+(translate "\\" '(normal visual) "<global-leader>")
+(translate "M-;" 'insert "<leader>")
+(translate "M-:" 'insert "<global-leader>")
 
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
@@ -164,12 +172,6 @@
 	 ;; don't activate mark on shift-click
 	 shift-select-mode nil)
 	:config
-	(evil-define-key '(normal visual) 'global
-		(kbd "SPC") 'send-leader
-		(kbd "\\") 'send-global-leader)
-	(evil-define-key 'insert 'global
-		(kbd "M-;") 'send-leader
-		(kbd "M-:") 'send-global-leader)
 	(setq evil-emacs-state-cursor 'box
 				evil-normal-state-cursor 'box
 				evil-visual-state-cursor 'box
