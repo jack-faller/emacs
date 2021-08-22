@@ -54,19 +54,14 @@
 (setq show-paren-delay 0)
 (show-paren-mode)
 (electric-pair-mode)
-(defmacro defprefix (name prefix-key)
-	`(progn
-		 (defvar ,name ,prefix-key)
-		 (defun ,name (&rest args)
-			 "accepts either (&optional prefix keys) or (&optional keys)"
-			 (pcase args
-				 (`(,prefix ,keys) (kbd (concat prefix ,prefix-key " " keys)))
-				 (`(,keys) (kbd (concat ,prefix-key " " keys)))
-				 (`() (kbd ,prefix-key))))))
-(defprefix leader "SPC")
-(defprefix insert-leader "M-;")
-(defprefix global-leader "\\")
-(defprefix insert-global-leader "M-\\")
+
+(defmacro defevent (name)
+	`(defun ,(intern (concat "send-" (symbol-name name))) ()
+		(interactive)
+		(setq prefix-arg current-prefix-arg)
+		(push '(t . ,name) unread-command-events)))
+(defevent leader)
+(defevent global-leader)
 
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
@@ -169,6 +164,12 @@
 	 ;; don't activate mark on shift-click
 	 shift-select-mode nil)
 	:config
+	(evil-define-key '(normal visual) 'global
+		(kbd "SPC") 'send-leader
+		(kbd "\\") 'send-global-leader)
+	(evil-define-key 'insert 'global
+		(kbd "M-;") 'send-leader
+		(kbd "M-:") 'send-global-leader)
 	(setq evil-emacs-state-cursor 'box
 				evil-normal-state-cursor 'box
 				evil-visual-state-cursor 'box
@@ -187,7 +188,7 @@
 		(kbd "M-e") 'evil-backward-word-end
 		(kbd "M-E") 'evil-backward-WORD-end)
 	(evil-define-key '(normal visual) 'global
-		(leader ";") 'execute-extended-command
+		(kbd "<leader>;") 'execute-extended-command
 		"ge" (evil-define-operator evil-eval (beg end)
 					 "Evil operator for evaluating code."
 					 :move-point nil
@@ -222,7 +223,7 @@
 	(evil-define-key 'normal 'global
 		"U" 'evil-redo
 		(kbd "<escape>") 'evil-ex-nohighlight
-		(global-leader "s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
+		(kbd "<global-leader>s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
 		"S" (lambda () (interactive) (evil-ex "%s/"))
 		"gb" 'switch-to-buffer
 		"gB" 'ibuffer)
@@ -331,43 +332,43 @@
 						 (evil-insert 1)))))
 	;; TODO make these work for visual
 	(evil-define-key '(visual normal) lispyville-mode-map
-		(leader "(") 'lispy-wrap-round
-		(leader "{") 'lispy-wrap-braces
-		(leader "[") 'lispy-wrap-brackets
-		(leader ")") 'lispyville-wrap-with-round
-		(leader "}") 'lispyville-wrap-with-braces
-		(leader "]") 'lispyville-wrap-with-brackets
+		(kbd "<leader>(") 'lispy-wrap-round
+		(kbd "<leader>{") 'lispy-wrap-braces
+		(kbd "<leader>[") 'lispy-wrap-brackets
+		(kbd "<leader>)") 'lispyville-wrap-with-round
+		(kbd "<leader>}") 'lispyville-wrap-with-braces
+		(kbd "<leader>]") 'lispyville-wrap-with-brackets
 		(kbd "M-j") 'lispyville-drag-forward
 		(kbd "M-k") 'lispyville-drag-backward
-		(leader "@") 'lispy-splice
-		(leader "w") (surround-paren-insert targets-inner-lispyville-sexp start)
-		(leader "W") (surround-paren-insert targets-inner-lispyville-sexp end)
-		(leader "i") (surround-paren-insert targets-a-lispyville-list start)
-		(leader "I") (surround-paren-insert targets-a-lispyville-list end)
-		(leader "s") 'lispy-split
-		(leader "j") 'lispy-join
-		(leader "r") 'lispy-raise
-		(leader "R") 'lispyville-raise-list
-		(leader "h") (evil-define-command my/lispyville-insert-at-beginnging-of-list (count) (interactive "<c>")
+		(kbd "<leader>@") 'lispy-splice
+		(kbd "<leader>w") (surround-paren-insert targets-inner-lispyville-sexp start)
+		(kbd "<leader>W") (surround-paren-insert targets-inner-lispyville-sexp end)
+		(kbd "<leader>i") (surround-paren-insert targets-a-lispyville-list start)
+		(kbd "<leader>I") (surround-paren-insert targets-a-lispyville-list end)
+		(kbd "<leader>s") 'lispy-split
+		(kbd "<leader>j") 'lispy-join
+		(kbd "<leader>r") 'lispy-raise
+		(kbd "<leader>R") 'lispyville-raise-list
+		(kbd "<leader>h") (evil-define-command my/lispyville-insert-at-beginnging-of-list (count) (interactive "<c>")
 									 (lispyville-insert-at-beginning-of-list count)
 									 (insert " ")
 									 (backward-char))
-		(leader "l") 'lispyville-insert-at-end-of-list
-		(leader "o") 'lispyville-open-below-list
-		(leader "O") 'lispyville-open-above-list))
+		(kbd "<leader>l") 'lispyville-insert-at-end-of-list
+		(kbd "<leader>o") 'lispyville-open-below-list
+		(kbd "<leader>O") 'lispyville-open-above-list))
 
 (pkg org
 	:defer t
 	:ensure nil
 	:preface
-	(add-hook 'org-mode-hook 'org-indent-mode)
 	(evil-define-key 'normal 'global
-		(global-leader "a") 'org-agenda
-		(global-leader "A") (lambda () (interactive)
+		(kbd "<global-leader>a") 'org-agenda
+		(kbd "<global-leader>A") (lambda () (interactive)
 													(require 'org-roam)
 													(org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
 													(goto-char (point-max))))
 	:init
+	(add-hook 'org-mode-hook 'org-indent-mode)
 	(setq org-todo-keywords
 				'((sequence "TODO" "IN-PROGRESS" "DONE")))
 	:config
@@ -382,7 +383,8 @@
 (pkg org-superstar
 	:defer t
 	:after (org)
-	:preface (add-hook 'org-mode-hook 'org-superstar-mode)
+	:preface
+	(add-hook 'org-mode-hook 'evil-org-mode)
 	:init
 	(setq org-superstar-leading-bullet "·")
 	:config
@@ -392,11 +394,12 @@
 	:defer t
 	:after (org)
 	:preface
+	(add-hook 'org-mode-hook (lambda () (require 'org-roam)))
 	(setq org-roam-v2-ack t
 				org-roam-completion-everywhere t
 				org-roam-directory (file-truename "~/org"))
 	(evil-define-key 'normal 'global
-		(global-leader "n") 'org-roam-node-find)
+		(kbd "<global-leader>n") 'org-roam-node-find)
 	:config
 	(setq org-roam-capture-templates
 				'(("d" "default" plain "\n%?"
@@ -415,17 +418,17 @@
 					 :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :FMAL:\n")
 					 :unnarrowed t)))
 	(evil-define-key 'insert org-mode-map
-		(insert-leader "n") 'org-roam-node-insert)
+		(kbd "<leader>n") 'org-roam-node-insert)
 	(evil-define-key 'normal org-mode-map
-		(leader "nb") 'org-roam-buffer-toggle
-		(leader "ng") 'org-roam-graph
-		(leader "ni") 'org-roam-node-insert
-		(leader "nc") 'org-roam-capture
-		(leader "nn") 'org-id-get-create
-		(leader "nt") 'org-roam-tag-add
-		(leader "nT") 'org-roam-tag-remove
-		(leader "nd") 'org-roam-dailies-capture-today
-		(leader "na") 'org-roam-alias-add)
+		(kbd "<leader>nb") 'org-roam-buffer-toggle
+		(kbd "<leader>ng") 'org-roam-graph
+		(kbd "<leader>ni") 'org-roam-node-insert
+		(kbd "<leader>nc") 'org-roam-capture
+		(kbd "<leader>nn") 'org-id-get-create
+		(kbd "<leader>nt") 'org-roam-tag-add
+		(kbd "<leader>nT") 'org-roam-tag-remove
+		(kbd "<leader>nd") 'org-roam-dailies-capture-today
+		(kbd "<leader>na") 'org-roam-alias-add)
 	(org-roam-db-autosync-mode)
 	;; If using org-roam-protocol
 	;; (require 'org-roam-protocol)
@@ -434,7 +437,7 @@
 (pkg evil-org
 	:defer t
 	:after (evil org)
-	:init
+	:preface
 	(add-hook 'org-mode-hook 'evil-org-mode)
 	:config
 	(require 'evil-org-agenda)
@@ -445,23 +448,20 @@
 	(evil-define-key 'normal org-capture-mode-map
 		(leader "k") 'org-capture-kill
 		(leader "c") 'org-capture-finalize)
-	(dolist (binds '(("." . org-time-stamp)
-									 ("l" . org-insert-link)))
-		(evil-define-key 'normal org-mode-map
-			(leader (car binds)) (cdr binds))
-		(evil-define-key 'insert org-mode-map
-			(insert-leader (car binds)) (cdr binds)))
+	(evil-define-key '(normal insert) org-mode-map
+		(kbd "<leader>.") 'org-time-stamp
+		(kbd "<leader>l") 'org-insert-link)
 	(evil-define-key 'normal org-mode-map
-		(leader "a") 'org-agenda-file-to-front
-		(leader "r") 'org-remove-file
-		(leader "c") 'org-ctrl-c-ctrl-c
-		(leader "l") 'org-insert-link
-		(leader "d") 'org-deadline
-		(leader "s") 'org-schedule
-		(leader "p") 'org-priority
-		(leader "RET") 'org-open-at-point
-		(leader "t") 'org-shiftright
-		(leader "T") 'org-shiftleft))
+		(kbd "<leader>a") 'org-agenda-file-to-front
+		(kbd "<leader>r") 'org-remove-file
+		(kbd "<leader>c") 'org-ctrl-c-ctrl-c
+		(kbd "<leader>l") 'org-insert-link
+		(kbd "<leader>d") 'org-deadline
+		(kbd "<leader>s") 'org-schedule
+		(kbd "<leader>p") 'org-priority
+		(kbd "<leader>RET") 'org-open-at-point
+		(kbd "<leader>t") 'org-shiftright
+		(kbd "<leader>T") 'org-shiftleft))
 
 (pkg which-key
 	:diminish which-key-mode
@@ -611,7 +611,7 @@
 	(add-hook 'emacs-lisp-mode-hook (lambda () (flycheck-mode -1)))
 	:config
 	(evil-define-key 'normal flycheck-mode-map
-		(leader "e") 'list-flycheck-errors
+		(kbd "<leader>e") 'list-flycheck-errors
 		"]]" 'flycheck-next-error
 		"[[" 'flycheck-previous-error)
 	(global-flycheck-mode))
@@ -624,18 +624,18 @@
 	:config
 	(add-hook 'lsp-mode-hook 'evil-normal-state)
 	(evil-define-key 'normal lsp-mode-map
-		(leader "=") 'lsp-format-buffer
-		(leader "gd") 'lsp-find-definition
-		(leader "gD") 'lsp-find-declaration
-		(leader "gr") 'lsp-find-references
-		(leader "gi") 'lsp-find-implementation
-		(leader "gt") 'lsp-find-type-definition
-		;; (leader "gh") 'hierarchy
-		(leader "ga") 'xref-find-apropos
-		(leader "o") 'lsp-organize-imports
-		(leader "r") 'lsp-rename
-		(leader "te") (lambda () (interactive) (setq lsp-eldoc-enable-hover (not lsp-eldoc-enable-hover)))
-		(leader "a") 'lsp-execute-code-action
+		(kbd "<leader>=") 'lsp-format-buffer
+		(kbd "<leader>gd") 'lsp-find-definition
+		(kbd "<leader>gD") 'lsp-find-declaration
+		(kbd "<leader>gr") 'lsp-find-references
+		(kbd "<leader>gi") 'lsp-find-implementation
+		(kbd "<leader>gt") 'lsp-find-type-definition
+		;; (kbd "<leader>gh") 'hierarchy
+		(kbd "<leader>ga") 'xref-find-apropos
+		(kbd "<leader>o") 'lsp-organize-imports
+		(kbd "<leader>r") 'lsp-rename
+		(kbd "<leader>te") (lambda () (interactive) (setq lsp-eldoc-enable-hover (not lsp-eldoc-enable-hover)))
+		(kbd "<leader>a") 'lsp-execute-code-action
 		"K" 'lsp-ui-doc-show
 		"gK" 'lsp-describe-thing-at-point))
 
@@ -666,7 +666,7 @@
 	:defer t
 	:preface
 	(evil-define-key 'normal 'global
-		(global-leader "m") 'magit)
+		(kbd "<global-leader>m") 'magit)
 	(evil-define-key 'normal magit-mode-map
 		(kbd "M-h") 'magit-section-up
 		(kbd "M-j") 'magit-section-forward-sibling
