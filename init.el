@@ -348,7 +348,10 @@
 		(leader "j") 'lispy-join
 		(leader "r") 'lispy-raise
 		(leader "R") 'lispyville-raise-list
-		(leader "h") 'lispyville-insert-at-beginning-of-list
+		(leader "h") (evil-define-command my/lispyville-insert-at-beginnging-of-list (count) (interactive "<c>")
+									 (lispyville-insert-at-beginning-of-list count)
+									 (insert " ")
+									 (backward-char))
 		(leader "l") 'lispyville-insert-at-end-of-list
 		(leader "o") 'lispyville-open-below-list
 		(leader "O") 'lispyville-open-above-list))
