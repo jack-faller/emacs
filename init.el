@@ -631,7 +631,8 @@
 	:defer t
 	:after (company)
 	:init
-	(setq lsp-eldoc-enable-hover nil)
+	(setq lsp-eldoc-enable-hover nil
+				lsp-signature-render-documentation nil)
 	:config
 	(add-hook 'lsp-mode-hook 'evil-normal-state)
 	(evil-define-key 'normal lsp-mode-map
@@ -654,7 +655,6 @@
 	:defer t
 	:init
 	(setq lsp-ui-doc-enable t
-				;; lsp-ui-doc-use-webkit t
 				lsp-ui-doc-delay most-positive-fixnum
 				lsp-ui-doc-position 'at-point
 				lsp-ui-sideline-show-hover t
