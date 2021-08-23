@@ -585,10 +585,14 @@
 	:after (company prescient)
 	:config (company-prescient-mode))
 
-(pkg rust-mode
+(pkg rustic
 	:defer t
-	:init
-	(add-hook 'rust-mode-hook 'lsp))
+	:after (lsp lsp-ui)
+	:preface
+	(add-hook 'rust-mode-hook 'rustic-mode)
+	:config
+	(setq-mode-local rustic-mode lsp-ui-sideline-show-hover nil
+									 lsp-rust-analyzer-cargo-watch-command "clippy"))
 
 (pkg projectile
 	:config
