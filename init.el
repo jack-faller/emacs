@@ -77,6 +77,7 @@
 (setq-default tab-width 2)
 (setq-default evil-shift-width tab-width)
 (setq-default rust-indent-offset tab-width)
+(setq backward-delete-char-untabify-method 'all)
 
 (defmacro interactive-chain (&rest args)
 	(declare (indent 0))
