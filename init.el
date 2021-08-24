@@ -590,9 +590,11 @@
 	:defer t
 	:after (lsp lsp-ui)
 	:preface
-	(add-hook 'rust-mode-hook 'rustic-mode)
-	:config
-	(setq-mode-local rustic-mode lsp-ui-sideline-show-hover nil
+	(add-hook 'rust-mode-hook
+						'rustic-mode)
+	(require 'mode-local)
+	(setq-mode-local rustic-mode
+									 lsp-ui-sideline-show-hover nil
 									 lsp-rust-analyzer-cargo-watch-command "clippy"))
 
 (pkg projectile
@@ -654,7 +656,7 @@
 
 (pkg lsp-ui
 	:defer t
-	:init
+	:preface
 	(setq lsp-ui-doc-enable t
 				lsp-ui-doc-delay most-positive-fixnum
 				lsp-ui-doc-position 'at-point
