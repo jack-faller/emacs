@@ -7,13 +7,13 @@
 
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (unless (file-exists-p custom-file)
-		(write-region "" nil custom-file))
+	(write-region "" nil custom-file))
 
 (defun map-files (fun file-list)
 	"do fun with the buffer as each file in file-list"
 	(dolist (file file-list)
 		(let ((buf (find-file file)))
-			(goto-char (point-min)) ; in case file is open
+			(goto-char (point-min))						; in case file is open
 			(funcall fun)
 			(save-buffer)
 			(kill-buffer buf))))
@@ -29,7 +29,7 @@
 (defmacro measure-time (&rest body)
 	(declare (indent 0))
 	"Measure the time it takes to evaluate BODY."
-	(let ((time (gensym))(result (gensym)))
+	(let ((time (gensym)) (result (gensym)))
 		`(let* ((,time (current-time))
 						(,result (progn ,@body)))
 			 (message "%.06f" (float-time (time-since ,time)))
@@ -60,7 +60,6 @@
 	(declare (indent 0))
 	`(progn (define-key key-translation-map
 						(kbd ,key) (lambda (_)
-												 (message "%S" evil-state)
 												 (pcase evil-state
 													 (,(if (symbolp (cadr states))
 																 states
@@ -68,7 +67,19 @@
 														(kbd ,event))
 													 (_ (kbd ,key)))))
 					,(if bindings `(translate ,@bindings))))
-(translate
+(defun send-keys (keys)
+	(setq prefix-arg current-prefix-arg)
+	(setq unread-command-events
+				(nconc (mapcar (lambda (i) (cons t i)) (kbd keys))
+							 unread-command-events)))
+(defmacro prefix-translate (key states event &rest bindings)
+	"translate but only for keys that appear at the start of chords"
+	(declare (indent 0))
+	`(with-eval-after-load 'evil
+		 (evil-define-key ,states 'global
+			 (kbd ,key) (lambda () (interactive) (send-keys ,event)))
+		 ,@(if bindings (cddr (macroexpand-1 `(prefix-translate ,@bindings))))))
+(prefix-translate
 	"SPC" '(normal visual) "<leader>"
 	"\\" '(normal visual) "<global-leader>"
 	"M-;" 'insert "<leader>"
@@ -328,7 +339,7 @@
 														 (start (car obj)))
 												(if (eq (char-after start) ?')
 														(cons (+ 1 start) (cdr obj))
-														obj))
+													obj))
 											'(?\))))
 			 ,@(if (eq at-end 'end)
 						 '((lispyville-up-list)
@@ -358,9 +369,9 @@
 		(kbd "<leader>r") 'lispy-raise
 		(kbd "<leader>R") 'lispyville-raise-list
 		(kbd "<leader>h") (evil-define-command my/lispyville-insert-at-beginnging-of-list (count) (interactive "<c>")
-									 (lispyville-insert-at-beginning-of-list count)
-									 (insert " ")
-									 (backward-char))
+												(lispyville-insert-at-beginning-of-list count)
+												(insert " ")
+												(backward-char))
 		(kbd "<leader>l") 'lispyville-insert-at-end-of-list
 		(kbd "<leader>o") 'lispyville-open-below-list
 		(kbd "<leader>O") 'lispyville-open-above-list))
@@ -372,9 +383,9 @@
 	(evil-define-key 'normal 'global
 		(kbd "<global-leader>a") 'org-agenda
 		(kbd "<global-leader>A") (lambda () (interactive)
-													(require 'org-roam)
-													(org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
-													(goto-char (point-max))))
+															 (require 'org-roam)
+															 (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
+															 (goto-char (point-max))))
 	:init
 	(add-hook 'org-mode-hook 'org-indent-mode)
 	(setq org-todo-keywords
@@ -516,13 +527,13 @@
 	(evil-define-key nil company-active-map
 		(kbd "<tab>") (interactive-chain 'company-complete-common 'company-select-next)
 		;; (lambda () (interactive)
-									;; 	(company-complete-common)
-									;; 	;; hack to get quickhelp to play nice with tng
-									;; 	(when (not (null company-quickhelp--timer))
-									;; 		(company-quickhelp--cancel-timer))
-									;; 	(company-select-next)
-									;; 	(company-quickhelp--set-timer)
-									;; 	(message "eset"))
+		;; 	(company-complete-common)
+		;; 	;; hack to get quickhelp to play nice with tng
+		;; 	(when (not (null company-quickhelp--timer))
+		;; 		(company-quickhelp--cancel-timer))
+		;; 	(company-select-next)
+		;; 	(company-quickhelp--set-timer)
+		;; 	(message "eset"))
 		(kbd "TAB") 'company-select-next
 		(kbd "<backtab>") 'company-select-previous
 		(kbd "M-TAB") 'company-complete-common
@@ -592,10 +603,16 @@
 	:preface
 	(add-hook 'rust-mode-hook
 						'rustic-mode)
+	(setq lsp-rust-server 'rust-analyzer)
 	(require 'mode-local)
 	(setq-mode-local rustic-mode
 									 lsp-ui-sideline-show-hover nil
 									 lsp-rust-analyzer-cargo-watch-command "clippy"))
+(pkg flycheck-rust
+	:defer t
+	:after (flycheck)
+	:preface
+	(add-hook 'rust-mode-hook 'flycheck-rust-setup))
 
 (pkg projectile
 	:config
@@ -629,10 +646,16 @@
 		"]]" 'flycheck-next-error
 		"[[" 'flycheck-previous-error)
 	(global-flycheck-mode))
+(pkg flycheck-inline
+	:defer t
+	:after (flycheck)
+	:preface
+	(add-hook 'flycheck-mode-hook 'flycheck-inline-mode)
+	(setq flycheck-display-errors-delay 0.2))
 
 (pkg lsp-mode
 	:defer t
-	:after (company)
+	:after (company flycheck)
 	:init
 	(setq lsp-eldoc-enable-hover nil
 				lsp-signature-render-documentation nil)
@@ -659,7 +682,7 @@
 	:preface
 	(setq lsp-ui-doc-enable t
 				lsp-ui-doc-delay most-positive-fixnum
-				lsp-ui-doc-position 'at-point
+				lsp-ui-doc-position 'top
 				lsp-ui-sideline-show-hover t
 				lsp-ui-sideline-show-symbol t
 				lsp-ui-sideline-show-diagnostics t
