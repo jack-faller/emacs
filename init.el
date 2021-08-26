@@ -607,7 +607,8 @@
 	(require 'mode-local)
 	(setq-mode-local rustic-mode
 									 lsp-ui-sideline-show-hover nil
-									 lsp-rust-analyzer-cargo-watch-command "clippy"))
+									 lsp-rust-analyzer-cargo-watch-command "clippy")
+	(setq rustic-indent-offset 2))
 (pkg flycheck-rust
 	:defer t
 	:after (flycheck)
