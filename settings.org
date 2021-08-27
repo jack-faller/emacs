@@ -501,6 +501,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (add-hook 'rust-mode-hook 'flycheck-rust-setup))
 #+end_src
 * Org
+** Org-mode
 #+begin_src emacs-lisp
   (pkg org
     :defer t
@@ -642,7 +643,26 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>p") 'org-priority
       (kbd "<leader>RET") 'org-open-at-point
       (kbd "<leader>t") 'org-shiftright
-      (kbd "<leader>T") 'org-shiftleft))
+      (kbd "<leader>T") 'org-shiftleft
+      (kbd "<leader>be") 'org-edit-src-code
+      (kbd "<leader>bs") (evil-define-command evil-split-org-strucutre-template ()
+                           (let ((point (point)) start-line end-line)
+                             (cl-destructuring-bind ((_ end _) (start _ _)) `(,(evil-org-inner-element)
+                                                                              ,(evil-org-an-element))
+                               (cl-loop for (line var) in `((,start start-line) (,end end-line))
+                                        do (goto-char line)
+                                        do (set var (buffer-substring-no-properties
+                                                     (line-beginning-position)
+                                                     (line-end-position))))
+                               (goto-char point)
+                               (evil-insert-newline-below)
+                               (insert (format "%s\n%s" end-line start-line)))))
+      (kbd "<leader>bw") (evil-define-operator evil-wrap-org-structure-template (beg end)
+                           "Wrap region in structure template"
+                           :type line
+                           (goto-char beg)
+                           (set-mark end)
+                           (call-interactively 'org-insert-structure-template))))
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
