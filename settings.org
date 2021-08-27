@@ -109,6 +109,13 @@
     (declare (indent 0))
     `(lambda () (interactive) ,@(mapcar #'cdr args)))
 #+end_src
+** Toggle
+#+begin_src emacs-lisp
+  (defmacro interactive-toggle (var-name)
+    "Define a toggle function for var-name and return it."
+    `(evil-define-command ,(intern (concat "toggle-" (symbol-name var-name)))
+       (setq ,var-name (not ,var-name))))
+#+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
