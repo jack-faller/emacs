@@ -418,6 +418,18 @@
 	 '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
 	(setq org-cycle-level-faces nil))
 
+(pkg org-appear
+	:defer t
+	:after (org)
+	:preface
+	(add-hook 'org-mode-hook 'org-appear-mode)
+	(mapc (lambda (sym) (set sym t))
+				'(org-appear-autoemphasis
+					org-appear-autolinks
+					org-appear-autoentities
+					org-appear-autokeywords
+					org-appear-autosubmarkers)))
+
 (pkg org-superstar
 	:defer t
 	:after (org)
