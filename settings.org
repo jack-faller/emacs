@@ -245,8 +245,9 @@
     (require 'keyfreq)
     (setq keyfreq-excluded-commands '(self-insert-command)))
 #+end_src
-* Vim Keys
+* Vim Keys (Evil)
 ** Evil Requirements
+Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (pkg undo-tree
     :diminish undo-tree-mode
@@ -280,12 +281,12 @@
      evil-ex-search-vim-style-regexp t
      evil-ex-substitute-global t
      evil-ex-visual-char-range t ; column range for ex commands this doesn't work
-                                          ; more vim-like behavior
-     evil-symbol-word-search t
-     evil-want-change-word-to-end nil ; ce and cw are now different
-                                          ; don't activate mark on shift-click
-     shift-select-mode nil)
+     evil-symbol-word-search t	 ; more vim-like behavior
+     evil-want-change-word-to-end nil			; ce and cw are now different
+     shift-select-mode nil					; don't activate mark on shift-click
+     )
     :config
+    (evil-mode 1)
     (setq evil-emacs-state-cursor 'box
           evil-normal-state-cursor 'box
           evil-visual-state-cursor 'box
@@ -339,6 +340,7 @@
       (kbd "<global-leader>s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
       (kbd "<global-leader>b") 'bookmark-jump
       (kbd "<global-leader>B") 'bookmark-set
+      (kbd "<global-leader>td") 'toggle-debug-on-error
       "S" (lambda () (interactive) (evil-ex "%s/"))
       "gb" 'switch-to-buffer
       "gB" 'ibuffer)
@@ -356,8 +358,7 @@
       (kbd "M-DEL") (lambda () (interactive)
                       (split-window-vertically)
                       (evil-window-down 1)
-                      (call-interactively #'switch-to-buffer)))
-    (evil-mode 1))
+                      (call-interactively #'switch-to-buffer))))
 
   (pkg evil-surround
     :config
