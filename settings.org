@@ -116,6 +116,13 @@
     `(evil-define-command ,(intern (concat "toggle-" (symbol-name var-name)))
        (setq ,var-name (not ,var-name))))
 #+end_src
+** Hook
+#+begin_src emacs-lisp
+  (defmacro hook (hook &rest body)
+    "Run body after hook."
+    (declare (indent 1))
+    `(add-hook ,hook (lambda () ,@body)))
+#+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
@@ -266,7 +273,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
       (setq undo-tree-history-directory-alist (list (cons "." undo-dir))))
     :config
-    (add-hook 'after-save-hook '(lambda () (when undo-tree-mode (undo-tree-save-history nil t))))
+    (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
     (global-undo-tree-mode))
 
   (pkg goto-chg)
@@ -421,16 +428,16 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (add-hook 'scheme-mode-hook 'lispyville-mode)
     (add-hook 'lisp-mode-hook 'lispyville-mode)
     :init
-    (add-hook 'lispyville-mode-hook
-              (cl-macrolet ((defto (name key)
-                              `(targets-define-to ,name ',name nil object :bind t :keys ,key)))
-                (lambda ()
-                  (defto lispyville-comment "c")
-                  (defto lispyville-atom "a")
-                  (defto lispyville-list "f")
-                  (defto lispyville-sexp "x")
-                  (defto lispyville-function "d")
-                  (defto lispyville-string "s"))))
+    (hook 'lispyville-mode-hook
+      (cl-macrolet ((defto (name key)
+                      `(targets-define-to ,name ',name nil object :bind t :keys ,key)))
+        (lambda ()
+          (defto lispyville-comment "c")
+          (defto lispyville-atom "a")
+          (defto lispyville-list "f")
+          (defto lispyville-sexp "x")
+          (defto lispyville-function "d")
+          (defto lispyville-string "s"))))
     :config
     (lispyville-set-key-theme '(operators
                                 c-w
@@ -522,11 +529,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                                  (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
                                  (goto-char (point-max))))
     :init
-    (add-hook 'org-mode-hook (lambda ()
-                               (org-indent-mode)
-                               (setq-local electric-pair-inhibit-predicate
-                                           `(lambda (p) (or (char-equal p ?<)
-                                                            (,electric-pair-inhibit-predicate p))))))
+    (hook 'org-mode-hook
+      (org-indent-mode)
+      (setq-local electric-pair-inhibit-predicate
+                  `(lambda (p) (or (char-equal p ?<)
+                                   (,electric-pair-inhibit-predicate p)))))
     (evil-define-key 'normal org-mode-map
       (kbd "<leader>ti") 'org-display-inline-images
       (kbd "<leader>tI") 'org-remove-inline-images)
@@ -578,7 +585,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :defer t
     :after (org)
     :preface
-    (add-hook 'org-mode-hook (lambda () (require 'org-roam)))
+    (hook 'org-mode-hook (require 'org-roam))
     (setq org-roam-v2-ack t
           org-roam-completion-everywhere t
           org-roam-directory (file-truename "~/org"))
@@ -893,7 +900,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (pkg flycheck
     :defer t
     :preface
-    (add-hook 'emacs-lisp-mode-hook (lambda () (flycheck-mode -1)))
+    (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
     :config
     (evil-define-key 'normal flycheck-mode-map
       (kbd "<leader>e") 'list-flycheck-errors
