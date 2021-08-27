@@ -402,8 +402,13 @@
 															 (goto-char (point-max))))
 	:init
 	(add-hook 'org-mode-hook 'org-indent-mode)
-	(setq org-todo-keywords
-				'((sequence "TODO" "IN-PROGRESS" "DONE")))
+	(evil-define-key 'normal org-mode-map
+		(kbd "<leader>ti") 'org-display-inline-images
+		(kbd "<leader>tI") 'org-remove-inline-images)
+	(setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
+				org-hide-emphasis-markers t
+				org-pretty-entities t
+				org-pretty-entities-include-sub-superscripts t)
 	:config
 	(custom-set-faces
 	 '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
