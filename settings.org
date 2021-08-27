@@ -509,12 +509,16 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :preface
     (evil-define-key 'normal 'global
       (kbd "<global-leader>a") 'org-agenda
-      (kbd "<global-leader>A") (lambda () (interactive)
+      (kbd "<global-leader>A") (evil-define-command visit-roam-agenda ()
                                  (require 'org-roam)
                                  (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
                                  (goto-char (point-max))))
     :init
-    (add-hook 'org-mode-hook 'org-indent-mode)
+    (add-hook 'org-mode-hook (lambda ()
+                               (org-indent-mode)
+                               (setq electric-pair-inhibit-predicate
+                                     (lambda (p) (if (char-equal p ?<) t
+                                                   (funcall electric-pair-inhibit-predicate))))))
     (evil-define-key 'normal org-mode-map
       (kbd "<leader>ti") 'org-display-inline-images
       (kbd "<leader>tI") 'org-remove-inline-images)
@@ -530,7 +534,9 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
      '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
      '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
     ;; Don't make text bigger after 8 levels.
-    (setq org-cycle-level-faces nil))
+    (setq org-cycle-level-faces nil)
+    ;; Snippets for structure templates..
+    (require 'org-tempo))
 #+end_src
 ** Hide Org Markup
 #+begin_src emacs-lisp
