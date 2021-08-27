@@ -344,11 +344,12 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (evil-define-key 'normal 'global
       "U" 'evil-redo
       (kbd "<escape>") 'evil-ex-nohighlight
-      (kbd "<global-leader>s") (lambda () (interactive) (switch-to-buffer "*scratch*"))
+      (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
+                                 (switch-to-buffer "*scratch*"))
       (kbd "<global-leader>b") 'bookmark-jump
       (kbd "<global-leader>B") 'bookmark-set
       (kbd "<global-leader>td") 'toggle-debug-on-error
-      "S" (lambda () (interactive) (evil-ex "%s/"))
+      "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
       "gb" 'switch-to-buffer
       "gB" 'ibuffer)
     (evil-define-key nil 'global
@@ -358,11 +359,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "C-l") 'evil-window-right
       (kbd "C-q") 'image-kill-buffer
       (kbd "C-S-q") (interactive-chain 'save-buffer 'kill-buffer)
-      (kbd "M-RET") (lambda () (interactive)
+      (kbd "M-RET") (evil-define-command split-hoz-goto-buffer ()
                       (split-window-horizontally)
                       (evil-window-right 1)
                       (call-interactively #'switch-to-buffer))
-      (kbd "M-DEL") (lambda () (interactive)
+      (kbd "M-DEL") (evil-define-command split-vert-goto-buffer ()
                       (split-window-vertically)
                       (evil-window-down 1)
                       (call-interactively #'switch-to-buffer))))
@@ -582,17 +583,20 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
           org-roam-completion-everywhere t
           org-roam-directory (file-truename "~/org"))
     (defun org-roam-get-unlinked-node-ids ()
+      "Get the IDs of nodes with no backlinks."
       (cl-set-difference (mapcar 'car (org-roam-db-query [:select id :from nodes]))
                          (mapcar 'car (org-roam-db-query [:select dest :from links]))
                          :test 'string=))
     (evil-define-key 'normal 'global
       (kbd "<global-leader>nf") 'org-roam-node-find
       (kbd "<global-leader>nu")
-      (lambda () (interactive)
+      (evil-define-command org-roam-unlinked-node-find (&optional other-window initial-input filter-fn)
+        "Find nodes with no backlinks."
         (let ((titles (mapcar (lambda (id) (-> id org-roam-node-from-id org-roam-node-title))
                               (org-roam-get-unlinked-node-ids))))
           (org-roam-node-visit (org-roam-node-from-title-or-alias
-                                (completing-read "Node: " titles nil t))))))
+                                (completing-read "Node: " titles filter-fn t initial-input))
+                               other-window))))
     :config
     (setq org-roam-capture-templates
           '(("d" "default" plain "\n%?"
@@ -804,7 +808,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>ga") 'xref-find-apropos
       (kbd "<leader>o") 'lsp-organize-imports
       (kbd "<leader>r") 'lsp-rename
-      (kbd "<leader>te") (lambda () (interactive) (setq lsp-eldoc-enable-hover (not lsp-eldoc-enable-hover)))
+      (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
       (kbd "<leader>a") 'lsp-execute-code-action
       "K" 'lsp-ui-doc-show
       "gK" 'lsp-describe-thing-at-point))
