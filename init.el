@@ -23,6 +23,10 @@
 	(unless (file-exists-p i)
 		(make-directory i)))
 
+(defun insert-file-name (name)
+	(interactive "F")
+	(insert name))
+
 (defun map-files (fun file-list)
 	"do fun with the buffer as each file in file-list"
 	(dolist (file file-list)
