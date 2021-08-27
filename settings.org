@@ -516,9 +516,9 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :init
     (add-hook 'org-mode-hook (lambda ()
                                (org-indent-mode)
-                               (setq electric-pair-inhibit-predicate
-                                     (lambda (p) (if (char-equal p ?<) t
-                                                   (funcall electric-pair-inhibit-predicate))))))
+                               (setq-local electric-pair-inhibit-predicate
+                                           `(lambda (p) (or (char-equal p ?<)
+                                                            (,electric-pair-inhibit-predicate p))))))
     (evil-define-key 'normal org-mode-map
       (kbd "<leader>ti") 'org-display-inline-images
       (kbd "<leader>tI") 'org-remove-inline-images)
