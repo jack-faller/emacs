@@ -1,4 +1,5 @@
 #+title: "Emacs Settings"
+#+options: toc:2
 
 * Hide Bars Quickly
 #+begin_src emacs-lisp
