@@ -6,8 +6,21 @@
 (setq pgtk-wait-for-event-timeout nil)
 
 (setq custom-file (concat user-emacs-directory "custom.el"))
-(unless (file-exists-p custom-file)
-	(write-region "" nil custom-file))
+(push '("\\.\\(vcf\\|gpg\\)$" . sensitive-minor-mode) auto-mode-alist)
+(setq
+ backup-by-copying t										; don't clobber symlinks
+ my/backup-dir (concat user-emacs-directory "backups/")
+ backup-directory-alist `(("." . ,my/backup-dir)) ; don't litter my fs tree
+ delete-old-versions t
+ kept-new-versions 6
+ kept-old-versions 2
+ version-control t)       ; use versioned backups
+(dolist (i (list custom-file))
+	(unless (file-exists-p i)
+		(write-region "" nil i)))
+(dolist (i (list my/backup-dir))
+	(unless (file-exists-p i)
+		(make-directory i)))
 
 (defun map-files (fun file-list)
 	"do fun with the buffer as each file in file-list"
