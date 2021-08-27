@@ -788,6 +788,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (setq eldoc-idle-delay 0))
 #+end_src
 ** Language Server Support (LSP)
+*** LSP-Mode
 #+begin_src emacs-lisp
   (pkg lsp-mode
     :defer t
