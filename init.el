@@ -431,8 +431,18 @@
 	(setq org-roam-v2-ack t
 				org-roam-completion-everywhere t
 				org-roam-directory (file-truename "~/org"))
+	(defun org-roam-get-unlinked-node-ids ()
+		(cl-set-difference (mapcar 'car (org-roam-db-query [:select id :from nodes]))
+											 (mapcar 'car (org-roam-db-query [:select dest :from links]))
+											 :test 'string=))
 	(evil-define-key 'normal 'global
-		(kbd "<global-leader>n") 'org-roam-node-find)
+		(kbd "<global-leader>nf") 'org-roam-node-find
+		(kbd "<global-leader>nu")
+		(lambda () (interactive)
+			(let ((titles (mapcar (lambda (id) (-> id org-roam-node-from-id org-roam-node-title))
+														(org-roam-get-unlinked-node-ids))))
+				(org-roam-node-visit (org-roam-node-from-title-or-alias
+															(completing-read "Node: " titles nil t))))))
 	:config
 	(setq org-roam-capture-templates
 				'(("d" "default" plain "\n%?"
