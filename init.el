@@ -12,9 +12,10 @@
  my/backup-dir (concat user-emacs-directory "backups/")
  backup-directory-alist `(("." . ,my/backup-dir)) ; don't litter my fs tree
  delete-old-versions t
- kept-new-versions 6
- kept-old-versions 2
- version-control t)       ; use versioned backups
+ kept-new-versions 10
+ kept-old-versions 0
+ version-control t
+ vc-make-backup-files t)       ; use versioned backups
 (dolist (i (list custom-file))
 	(unless (file-exists-p i)
 		(write-region "" nil i)))
