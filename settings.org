@@ -306,9 +306,8 @@
     (evil-define-key '(normal visual) 'global
       (kbd "<leader>;") 'execute-extended-command
       "ge" (evil-define-operator evil-eval (beg end)
-             "Evil operator for evaluating code."
+             "Evaluate code."
              :move-point nil
-             (interactive "<r>")
              (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
                     (f-a (cdr-safe ele))
                     (func (car-safe f-a))
@@ -317,19 +316,17 @@
                    (apply func beg end args)
                  (eval-region beg end t))))
       "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
-             "Evil operator for evaluating code then replace with result."
+             "Evaluate code then replace with result."
              :move-point nil
-             (interactive "<r>")
              (let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
                (evil-delete beg end nil ?_)
                (message "%S" result)
                (insert (prin1-to-string result))))
       "gc" (evil-define-operator evil-comment (beg end)
-             "Evil operator for commenting code."
-             (interactive "<r>")
+             "Commenting code."
              (comment-or-uncomment-region beg end))
       "gs" (evil-define-operator evil-replace-with-reg (beg end type register)
-             "Evil operator for replacing region with active register code."
+             "Replace region with active register."
              (interactive "<R><x>")
              (evil-delete beg end type ?_)
              (evil-paste-before 1 register)))
