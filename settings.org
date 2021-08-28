@@ -239,7 +239,6 @@
 #+begin_src emacs-lisp
   (pkg page-break-lines
     :config
-    (setq page-break-lines-char ?-)
     (global-page-break-lines-mode))
 #+end_src
 ** Indent Guides
@@ -431,13 +430,12 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (hook 'lispyville-mode-hook
       (cl-macrolet ((defto (name key)
                       `(targets-define-to ,name ',name nil object :bind t :keys ,key)))
-        (lambda ()
-          (defto lispyville-comment "c")
-          (defto lispyville-atom "a")
-          (defto lispyville-list "f")
-          (defto lispyville-sexp "x")
-          (defto lispyville-function "d")
-          (defto lispyville-string "s"))))
+        (defto lispyville-comment "c")
+        (defto lispyville-atom "a")
+        (defto lispyville-list "f")
+        (defto lispyville-sexp "x")
+        (defto lispyville-function "d")
+        (defto lispyville-string "s")))
     :config
     (lispyville-set-key-theme '(operators
                                 c-w
