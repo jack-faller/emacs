@@ -424,6 +424,14 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :config
     (global-centered-cursor-mode 1))
 #+end_src
+* Restart
+#+begin_src emacs-lisp
+  (pkg restart-emacs
+    :defer t
+    :preface
+    (evil-define-key 'global 'normal
+      (kbd "<global-leader>rr") 'restart-emacs))
+#+end_src
 * Languages
 ** Lisp
 #+begin_src emacs-lisp
