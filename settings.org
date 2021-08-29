@@ -11,6 +11,7 @@
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (defvar all-the-icons-fonts-installed? t)
+  (setq display-warning-minimum-level :error)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
