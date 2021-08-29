@@ -364,10 +364,6 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                                  (switch-to-buffer "*scratch*"))
       (kbd "<global-leader>b") 'bookmark-jump
       (kbd "<global-leader>B") 'bookmark-set
-      (kbd "<global-leader>d") (evil-define-command goto-dir-locals ()
-                                 (find-file (concat (projectile-project-root) dir-locals-file)))
-      (kbd "<global-leader>Dp") (evil-define-command add-dir-locals-project-commands ()
-                                  (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
       (kbd "<global-leader>td") 'toggle-debug-on-error
       "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
       "gb" 'switch-to-buffer
@@ -885,6 +881,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :config
     (projectile-mode)
     (setq compilation-scroll-output t)
+    (evil-define-key 'normal 'global
+      (kbd "<global-leader>d") 'projectile-edit-dir-locals
+      (kbd "<global-leader>Dp") (evil-define-command add-dir-locals-project-commands ()
+                                  (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))")))
     (evil-define-key '(insert normal) projectile-mode-map
       (kbd "<f5>") 'projectile-run-project
       (kbd "<f6>") 'projectile-compile-project
