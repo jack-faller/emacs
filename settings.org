@@ -46,7 +46,12 @@
 #+begin_src emacs-lisp
   (setq pgtk-wait-for-event-timeout nil)
 #+end_src
-* Utility Functions
+* Utilities
+** Concat Symbols
+#+begin_src emacs-lisp
+  (defun symcat (&rest symbols)
+    (intern (apply 'concat (mapcar 'symbol-name symbols))))
+#+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
   (defun ensure-file (path)
@@ -113,7 +118,7 @@
 #+begin_src emacs-lisp
   (defmacro interactive-toggle (var-name)
     "Define a toggle function for var-name and return it."
-    `(evil-define-command ,(intern (concat "toggle-" (symbol-name var-name)))
+    `(evil-define-command (symcat 'toggle- var-name)
        (setq ,var-name (not ,var-name))))
 #+end_src
 ** Hook
