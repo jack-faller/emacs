@@ -365,7 +365,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<global-leader>b") 'bookmark-jump
       (kbd "<global-leader>B") 'bookmark-set
       (kbd "<global-leader>d") (evil-define-command goto-dir-locals ()
-                                 (find-file (concat (projectile-project-root) ".dir-locals.el")))
+                                 (find-file (concat (projectile-project-root) dir-locals-file)))
       (kbd "<global-leader>Dp") (evil-define-command add-dir-locals-project-commands ()
                                   (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
       (kbd "<global-leader>td") 'toggle-debug-on-error
