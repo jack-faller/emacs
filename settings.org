@@ -826,6 +826,12 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (setq eldoc-idle-delay 0))
 #+end_src
 ** Language Server Support (LSP)
+*** Performance
+These variables are reccomended by =lsp-mode= to increase performance.
+#+begin_src emacs-lisp
+  (setq read-process-output-max (* 1024 1024)
+        gc-cons-threshold 100000000)
+#+end_src
 *** LSP-Mode
 #+begin_src emacs-lisp
   (pkg lsp-mode
