@@ -543,6 +543,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :preface
     (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
     (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
+    (setq lsp-csharp-server-path "/usr/bin/omnisharp")
     (add-hook 'csharp-mode-hook 'lsp)
     (set-tab-width-in csharp-mode 4))
 #+end_src
