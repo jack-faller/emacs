@@ -912,9 +912,13 @@ These variables are reccomended by =lsp-mode= to increase performance.
     (projectile-mode)
     (setq compilation-scroll-output t)
     (evil-define-key 'normal 'global
-      (kbd "<global-leader>d") 'projectile-edit-dir-locals
-      (kbd "<global-leader>Dp") (evil-define-command add-dir-locals-project-commands ()
-                                  (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))")))
+      (kbd "<global-leader>pd") 'projectile-edit-dir-locals
+      (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
+                                   (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
+		
+      (kbd "<global-leader>pf") 'projectile-find-file
+      (kbd "<global-leader>pF") 'projectile-find-file-in-known-projects
+      (kbd "<global-leader>ps") 'projectile-switch-project)
     (evil-define-key '(insert normal) projectile-mode-map
       (kbd "<f5>") 'projectile-run-project
       (kbd "<f6>") 'projectile-compile-project
