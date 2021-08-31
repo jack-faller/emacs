@@ -932,16 +932,29 @@ These variables are reccomended by =lsp-mode= to increase performance.
 * Error Reporting with Fly-*
 ** Spellcheck
 #+begin_src emacs-lisp
-  (pkg flyspell
-    :preface
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    :init
-    (setq flyspell-issue-message-flag nil)
-    :config
-    (evil-define-key 'normal flyspell-mode-map
-      "[s" 'evil-prev-flyspell-error
-      "]s" 'evil-next-flyspell-error))
+  ;; (pkg flyspell
+  ;;   :preface
+  ;;   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  ;;   (add-hook 'text-mode-hook 'flyspell-mode)
+  ;;   :init
+  ;;   (setq flyspell-issue-message-flag nil
+  ;;         ispell-local-dictionary "dict"
+  ;;         ispell-local-dictionary-alist
+  ;;         `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
+  ;;   (defvar dict "en_GB"
+  ;;     "Dictionary to use.")
+  ;;   (cond
+  ;;    ((executable-find "aspell")
+  ;;     (setq ispell-program-name "aspell"
+  ;;           ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict) "--run-together" "--run-together-limit=16")))
+  ;;    ((executable-find "hunspell")
+  ;;     (setq ispell-program-name "hunspell")
+  ;;     (when (boundp 'ispell-hunspell-dictionary-alist)
+  ;;       (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist))))
+  ;;   :config
+  ;;   (evil-define-key 'normal flyspell-mode-map
+  ;;     "[s" 'evil-prev-flyspell-error
+  ;;     "]s" 'evil-next-flyspell-error))
 #+end_src
 ** Error Check
 #+begin_src emacs-lisp
