@@ -640,22 +640,21 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                                 (completing-read "Node: " titles filter-fn t initial-input))
                                other-window))))
     :config
-    (setq org-roam-capture-templates
-          '(("d" "default" plain "\n%?"
-             :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-             :unnarrowed t)
-            ("c" "computer science A-level" plain "\n%?"
-             :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :CSAL:\n")
-             :unnarrowed t)
-            ("p" "physics A-level" plain "\n%?"
-             :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :PAL:\n")
-             :unnarrowed t)
-            ("m" "maths A-level" plain "\n%?"
-             :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :MAL:\n")
-             :unnarrowed t)
-            ("f" "further maths A-level" plain "\n%?"
-             :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :FMAL:\n")
-             :unnarrowed t)))
+    (cl-flet ((template-with-tags
+              (key name tags)
+              `(,key ,name plain "\n%?"
+                     :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                                        ,(concat "#+title: ${title}\n#+filetags: " tags "\n"))
+                     :unnarrowed t)))
+      (setq org-roam-capture-templates
+            (list '("d" "default" plain "\n%?"
+                    :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+                    :unnarrowed t)
+                  (template-with-tags "c" "computer science A-level" ":CSAL:")
+                  (template-with-tags "p" "physics A-level" ":PAL:")
+                  (template-with-tags "m" "maths A-level" ":MAL:")
+                  (template-with-tags "f" "further maths A-level" ":FMAL:")
+                  (template-with-tags "w" "word" ":Word:"))))
     (evil-define-key 'insert org-mode-map
       (kbd "<leader>n") 'org-roam-node-insert)
     (evil-define-key 'normal org-mode-map
