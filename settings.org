@@ -391,6 +391,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 
   (pkg evil-surround
     :config
+    (setq-default evil-surround-pairs-alist
+                  (append '((?“ . ("“" . "”"))
+                            (?” . ("“ " . " ”")))
+                          evil-surround-pairs-alist))
     (global-evil-surround-mode 1))
 
   (pkg-github targets "noctuid/targets.el"
