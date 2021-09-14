@@ -418,8 +418,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
         "j" 'previous-complete-history-element
         "k" 'next-complete-history-element)))
 #+end_src
-** TODO Make <escape Work Like C-g
+** Make <backspace> Work Like C-g
 #+begin_src emacs-lisp
+  (define-key key-translation-map
+    (kbd "DEL") (lambda (c) (kbd (if (eq evil-state 'insert) "DEL" "C-g"))))
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
