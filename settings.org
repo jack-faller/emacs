@@ -193,7 +193,6 @@
 #+begin_src emacs-lisp
   (setq-default tab-width 2)
   (setq-default evil-shift-width tab-width)
-  (setq rust-indent-offset tab-width)
   (setq backward-delete-char-untabify-method 'all)
   (defmacro set-tab-width-in (mode tab-width)
     `(setq-mode-local ,mode
@@ -531,13 +530,13 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :defer t
     :after (lsp lsp-ui)
     :preface
-    (add-hook 'rust-mode-hook 'rustic-mode)
-    :init
     (setq lsp-rust-server 'rust-analyzer)
     (setq-mode-local rustic-mode
                      lsp-ui-sideline-show-hover nil
                      lsp-rust-analyzer-cargo-watch-command "clippy")
-    (setq rustic-indent-offset 2))
+    (set-tab-width-in rust-mode 2)
+    (setq rust-indent-offset 2)
+    (custom-set-default 'rustic-indent-offset 2))
   (pkg flycheck-rust
     :defer t
     :after (flycheck)
