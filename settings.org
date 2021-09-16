@@ -426,9 +426,6 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (pkg centered-cursor-mode
     :diminish centered-cursor-mode
-    :preface
-    (setq-default require-final-newline nil)
-    (setq mode-require-final-newline nil)
     :config
     (global-centered-cursor-mode 1))
 #+end_src
