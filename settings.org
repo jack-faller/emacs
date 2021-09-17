@@ -977,12 +977,6 @@ These variables are reccomended by =lsp-mode= to increase performance.
       "]]" 'flycheck-next-error
       "[[" 'flycheck-previous-error)
     (global-flycheck-mode))
-  (pkg flycheck-inline
-    :defer t
-    :after (flycheck)
-    :preface
-    (add-hook 'flycheck-mode-hook 'flycheck-inline-mode)
-    (setq flycheck-display-errors-delay 0.2))
 #+end_src
 * Magit
 #+begin_src emacs-lisp
