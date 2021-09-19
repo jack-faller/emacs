@@ -357,7 +357,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
              "Replace region with active register."
              (interactive "<R><x>")
              (evil-delete beg end type ?_)
-             (evil-paste-before 1 register)))
+             (insert (evil-get-register (or register ?\")))))
     (evil-define-key 'normal evil-ex-search-keymap
       "j" 'next-line-or-history-element
       "k" 'previous-line-or-history-element)
