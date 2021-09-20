@@ -661,6 +661,30 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                   (template-with-tags "m" "maths A-level" ":MAL:")
                   (template-with-tags "f" "further maths A-level" ":FMAL:")
                   (template-with-tags "w" "word" ":Word:"))))
+    (nconc org-roam-capture-templates
+           '(("t" "like the regular template but todo"))
+           (mapcar (lambda (templ)
+                     (setf (car templ) (concat "t" (car templ)))
+                     (let (out finnish-used? i)
+                       (while (setq i (pop templ))
+                         (cond
+                          ((eq i :if-new)
+                           (push i out)
+                           (setq i (pop templ))
+                           (cl-symbol-macrolet ((target (caddr i)))
+                             (let ((reg (rx line-start "#+filetags:"
+                                            (+ space)
+                                            (group (*? anychar))
+                                            ":\n")))
+                               (setf target
+                                     (if (string-match reg target)
+                                         (replace-regexp-in-string reg "#+filetags: \\1:TODO:\n" target)
+                                       (concat target "#+filetags: :TODO:\n")))))
+                           (push i out))
+                          ((eq i :immediate-finish) (pop templ))
+                          (t (push i out))))
+                       (nreverse (cons t (cons :immediate-finish out)))))
+                   (copy-tree org-roam-capture-templates)))
     (evil-define-key 'insert org-mode-map
       (kbd "<leader>n") 'org-roam-node-insert)
     (evil-define-key 'normal org-mode-map
