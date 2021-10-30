@@ -353,6 +353,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       "gc" (evil-define-operator evil-comment (beg end)
              "Commenting code."
              (comment-or-uncomment-region beg end))
+      "gC" (evil-define-operator evil-comment+yank (beg end type register)
+             "Commenting code and yanking original."
+             (interactive "<R><x>")
+             (evil-yank beg end type register)
+             (comment-or-uncomment-region beg end))
       "gs" (evil-define-operator evil-replace-with-reg (beg end type register)
              "Replace region with active register."
              (interactive "<R><x>")
