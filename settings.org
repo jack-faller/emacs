@@ -321,6 +321,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 
   (pkg goto-chg)
 #+end_src
+** Make <backspace> Work Like C-g
+#+begin_src emacs-lisp
+  (define-key key-translation-map
+    (kbd "DEL") (lambda (c) (kbd (if (eq evil-state 'insert) "DEL" "C-g"))))
+#+end_src
 ** Evil
 #+begin_src emacs-lisp
   (pkg evil
@@ -358,70 +363,12 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
             (enh-ruby-mode ruby-send-region)
             (python-mode python-shell-send-region)
             (julia-mode julia-shell-run-region)))
-    (evil-define-key 'motion 'global
-      (kbd "M-e") 'evil-backward-word-end
-      (kbd "M-E") 'evil-backward-WORD-end)
-    (evil-define-key '(normal visual) 'global
-      (kbd "<leader>;") 'execute-extended-command
-      "ge" (evil-define-operator evil-eval (beg end)
-             "Evaluate code."
-             :move-point nil
-             (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
-                    (f-a (cdr-safe ele))
-                    (func (car-safe f-a))
-                    (args (cdr-safe f-a)))
-               (if (fboundp func)
-                   (apply func beg end args)
-                 (eval-region beg end t))))
-      "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
-             "Evaluate code then replace with result."
-             :move-point nil
-             (let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
-               (evil-delete beg end nil ?_)
-               (message "%S" result)
-               (insert (prin1-to-string result))))
-      "gc" (evil-define-operator evil-comment (beg end)
-             "Commenting code."
-             (comment-or-uncomment-region beg end))
-      "gC" (evil-define-operator evil-comment+yank (beg end type register)
-             "Commenting code and yanking original."
-             (interactive "<R><x>")
-             (evil-yank beg end type register)
-             (comment-or-uncomment-region beg end))
-      "gs" (evil-define-operator evil-replace-with-reg (beg end type register)
-             "Replace region with active register."
-             (interactive "<R><x>")
-             (evil-delete beg end type ?_)
-             (insert (evil-get-register (or register ?\")))))
     (evil-define-key 'normal evil-ex-search-keymap
       "j" 'next-line-or-history-element
       "k" 'previous-line-or-history-element)
-    (evil-define-key 'normal 'global
-      "U" 'evil-redo
-      (kbd "<escape>") 'evil-ex-nohighlight
-      (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
-                                 (switch-to-buffer "*scratch*"))
-      (kbd "<global-leader>b") 'bookmark-jump
-      (kbd "<global-leader>B") 'bookmark-set
-      (kbd "<global-leader>td") 'toggle-debug-on-error
-      "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
-      "gb" 'switch-to-buffer
-      "gB" 'ibuffer)
-    (evil-define-key nil 'global
-      (kbd "C-h") 'evil-window-left
-      (kbd "C-j") 'evil-window-down
-      (kbd "C-k") 'evil-window-up
-      (kbd "C-l") 'evil-window-right
-      (kbd "C-q") 'image-kill-buffer
-      (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
-      (kbd "M-RET") (evil-define-command split-right ()
-                      (split-window-horizontally)
-                      (evil-window-right 1))
-      (kbd "M-S-RET") (evil-define-command split-left () (split-window-horizontally))
-      (kbd "M-DEL") (evil-define-command split-down ()
-                      (split-window-vertically)
-                      (evil-window-down 1))
-      (kbd "M-S-DEL") (evil-define-command split-up () (split-window-vertically))))
+    (evil-define-key 'motion 'global
+      (kbd "M-e") 'evil-backward-word-end
+      (kbd "M-E") 'evil-backward-WORD-end))
 
   (pkg evil-surround
     :config
@@ -452,10 +399,74 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
         "j" 'previous-complete-history-element
         "k" 'next-complete-history-element)))
 #+end_src
-** Make <backspace> Work Like C-g
+* Global Binds
 #+begin_src emacs-lisp
-  (define-key key-translation-map
-    (kbd "DEL") (lambda (c) (kbd (if (eq evil-state 'insert) "DEL" "C-g"))))
+  (evil-define-key '(normal visual) 'global
+    (kbd "<leader>;") 'execute-extended-command
+    "ge" (evil-define-operator evil-eval (beg end)
+           "Evaluate code."
+           :move-point nil
+           (let* ((ele (assoc major-mode evil-extra-operator-eval-modes-alist))
+                  (f-a (cdr-safe ele))
+                  (func (car-safe f-a))
+                  (args (cdr-safe f-a)))
+             (if (fboundp func)
+                 (apply func beg end args)
+               (eval-region beg end t))))
+    "gE" (evil-define-operator evil-eval-elisp-replace (beg end)
+           "Evaluate code then replace with result."
+           :move-point nil
+           (let ((result (eval (car (read-from-string (buffer-substring-no-properties beg end))))))
+             (evil-delete beg end nil ?_)
+             (message "%S" result)
+             (insert (prin1-to-string result))))
+    "gc" (evil-define-operator evil-comment (beg end)
+           "Commenting code."
+           (comment-or-uncomment-region beg end))
+    "gC" (evil-define-operator evil-comment+yank (beg end type register)
+           "Commenting code and yanking original."
+           (interactive "<R><x>")
+           (evil-yank beg end type register)
+           (comment-or-uncomment-region beg end))
+    "gs" (evil-define-operator evil-replace-with-reg (beg end type register)
+           "Replace region with active register."
+           (interactive "<R><x>")
+           (evil-delete beg end type ?_)
+           (insert (evil-get-register (or register ?\")))))
+  (evil-define-key 'normal 'global
+    "U" 'evil-redo
+    (kbd "<escape>") 'evil-ex-nohighlight
+    (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
+                               (switch-to-buffer "*scratch*"))
+    (kbd "<global-leader>b") 'bookmark-jump
+    (kbd "<global-leader>B") 'bookmark-set
+    (kbd "<global-leader>td") 'toggle-debug-on-error
+    (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
+                                (if (not (profiler-running-p))
+                                    (profiler-start 'cpu+mem)
+                                  (profiler-stop)
+                                  (profiler-report)))
+    "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
+    "gb" 'switch-to-buffer
+    "gB" 'ibuffer)
+#+end_src
+** Window / Buffer
+#+begin_src emacs-lisp
+  (evil-define-key nil 'global
+    (kbd "C-h") 'evil-window-left
+    (kbd "C-j") 'evil-window-down
+    (kbd "C-k") 'evil-window-up
+    (kbd "C-l") 'evil-window-right
+    (kbd "C-q") 'image-kill-buffer
+    (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
+    (kbd "M-RET") (evil-define-command split-right ()
+                    (split-window-horizontally)
+                    (evil-window-right 1))
+    (kbd "M-S-RET") (evil-define-command split-left () (split-window-horizontally))
+    (kbd "M-DEL") (evil-define-command split-down ()
+                    (split-window-vertically)
+                    (evil-window-down 1))
+    (kbd "M-S-DEL") (evil-define-command split-up () (split-window-vertically)))
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
