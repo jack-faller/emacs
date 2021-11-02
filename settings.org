@@ -450,6 +450,20 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     "gb" 'switch-to-buffer
     "gB" 'ibuffer)
 #+end_src
+** Printing
+#+begin_src emacs-lisp
+  (defvar mode-print-formatter nil
+    "A function that takes a string of expressions separated by “; ” and turns them into a print statement in the current mode.")
+
+  (defun print-text-on-line () "Apply mode-print-formatter to the text on the current line."
+         (interactive)
+         (replace-this-line mode-print-formatter))
+
+  (evil-define-key 'normal 'global
+    (kbd "gp") 'print-text-on-line)
+  (evil-define-key 'insert 'global
+    (kbd "M-p") 'print-text-on-line)
+#+end_src
 ** Window / Buffer
 #+begin_src emacs-lisp
   (evil-define-key nil 'global
@@ -594,7 +608,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :preface
     (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
     (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
-    (setq lsp-csharp-server-path "/usr/bin/omnisharp")
+    (setq-mode-local csharp-mode mode-print-formatter
+                     (lambda (str)
+                       (setf str (replace-regexp-in-string ";" "," str))
+                       (concat "GD.PrintS(" str ");")))
+    ;; (setq lsp-csharp-server-path "/usr/bin/omnisharp")
     (add-hook 'csharp-mode-hook 'lsp)
     (set-tab-width-in csharp-mode 4))
 #+end_src
@@ -846,8 +864,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "M-q") (interactive-chain 'company-select-first 'company-select-previous)
       (kbd "<next>") 'company-next-page
       (kbd "<prior>") 'company-previous-page
+      ;;Avoid conflicting keybinds 
       (kbd "<return>") nil
-      (kbd "RET") nil)
+      (kbd "RET") nil
+      (kbd "M-p"))
     (global-company-mode))
 #+end_src
 *** Prettify
