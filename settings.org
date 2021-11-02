@@ -133,6 +133,36 @@
 #+begin_src emacs-lisp
 	(pkg mode-local :ensure nil)
 #+end_src
+** Act On Line
+#+begin_src emacs-lisp
+  (defun act-on-line (f)
+    "Apply f to the current line, Ignoring leading indent."
+    (let* ((beg (line-beginning-position))
+           (end (line-end-position))
+           (line (buffer-substring-no-properties beg end))
+           (valid (string-match (rx (* space) (group (not space)))
+                                line))
+           (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
+                                  0)))
+           (text (buffer-substring-no-properties text-start end)))
+      (if (not valid) (error "No text on line.")
+        (funcall mode-print-formatter text))))
+
+  (defun replace-this-line (f)
+    "act-on-line but replace the text with the result of f."
+    (let* ((beg (line-beginning-position))
+           (end (line-end-position))
+           (line (buffer-substring-no-properties beg end))
+           (valid (string-match (rx (* space) (group (not space)))
+                                line))
+           (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
+                                  0)))
+           (text (buffer-substring-no-properties text-start end)))
+      (if (not valid) (error "No text on line.")
+        (kill-region text-start end)
+        (setf (point) text-start)
+        (insert (funcall mode-print-formatter text)))))
+#+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
