@@ -522,7 +522,6 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :preface
     (add-hook 'emacs-lisp-mode-hook 'lispyville-mode)
     (add-hook 'common-lisp-mode-hook 'lispyville-mode)
-    (add-hook 'scheme-mode-hook 'lispyville-mode)
     (add-hook 'lisp-mode-hook 'lispyville-mode)
     :init
     (hook 'lispyville-mode-hook
@@ -625,6 +624,20 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     ;; (setq lsp-csharp-server-path "/usr/bin/omnisharp")
     (add-hook 'csharp-mode-hook 'lsp)
     (set-tab-width-in csharp-mode 4))
+#+end_src
+** Scheme
+#+begin_src emacs-lisp
+  (pkg geiser
+    :defer t
+    :preface
+    (add-hook 'scheme-mode-hook 'geiser-mode)
+    (add-hook 'scheme-mode-hook 'lispyville-mode)
+    (add-hook 'geiser-mode-hook 'run-geiser)
+    :init
+    (setq geiser-mode-start-repl-p t)
+    (pkg geiser-guile)
+    (evil-define-key 'normal geiser-mode-map
+      (kbd "<insert>") 'geiser-mode-switch-to-repl))
 #+end_src
 * Org
 ** Org-mode
