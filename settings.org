@@ -163,6 +163,16 @@
         (setf (point) text-start)
         (insert (funcall mode-print-formatter text)))))
 #+end_src
+** Frame Kill Buffers
+#+begin_src emacs-lisp
+  (defvar frame-kill-buffers nil
+    "Buffer that should kill their frame when killed. Used for emacs server.")
+
+  (add-hook 'kill-buffer-hook
+            (defun delete-frame-if-frame-kill-buffer ()
+              (if (memq (current-buffer) frame-kill-buffers)
+                  (delete-frame))))
+#+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
