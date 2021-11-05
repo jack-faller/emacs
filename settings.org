@@ -544,7 +544,8 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     :init
     (hook 'lispyville-mode-hook
       (cl-macrolet ((defto (name key)
-                      `(targets-define-to ,name ',name nil object :bind t :keys ,key)))
+                      `(targets-define-to ,name ',name nil object :bind t
+                                          :keys ,key :hooks lispyville-mode-hook)))
         (defto lispyville-comment "c")
         (defto lispyville-atom "a")
         (defto lispyville-list "f")
