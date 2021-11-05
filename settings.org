@@ -170,8 +170,10 @@
 
   (add-hook 'kill-buffer-hook
             (defun delete-frame-if-frame-kill-buffer ()
-              (if (memq (current-buffer) frame-kill-buffers)
-                  (delete-frame))))
+              (when (memq (current-buffer) frame-kill-buffers)
+                (setf frame-kill-buffers
+                      (delete (current-buffer) frame-kill-buffers))
+                (delete-frame))))
 #+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
