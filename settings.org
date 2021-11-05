@@ -175,6 +175,22 @@
                       (delete (current-buffer) frame-kill-buffers))
                 (delete-frame))))
 #+end_src
+** Point Functions
+#+begin_src emacs-lisp
+  (defmacro with-save-point (&rest body)
+    "Save the position of the point between and return it to where it was before body."
+    (declare (indent 0))
+    (let ((point (gensym)) (result (gensym)))
+      `(let (,result (,point (point)))
+         (setf ,result (progn ,@body))
+         (setf (point) ,point)
+         ,result)))
+
+  (defmacro with-point-at (pos &rest body)
+    "Move the point to the specified position, then move it back to where it was before."
+    (declare (indent 1))
+    `(with-save-point (setf (point) ,pos) ,@body))
+#+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
