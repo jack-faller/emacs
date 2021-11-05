@@ -525,7 +525,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (evil-define-key 'global 'normal
       (kbd "<global-leader>rr") 'restart-emacs))
 #+end_src
-* Languages
+* Languages / File-types
 ** Lisp
 #+begin_src emacs-lisp
   (pkg lispy
@@ -656,6 +656,42 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (pkg geiser-guile)
     (evil-define-key 'normal geiser-mode-map
       (kbd "<insert>") 'geiser-mode-switch-to-repl))
+#+end_src
+** Anki External Editor
+#+begin_src emacs-lisp
+  (defvar anki-mode-hook nil)
+  (defvar anki-mode-map (make-sparse-keymap))
+  (evil-define-key 'normal anki-mode-map
+    (kbd "<leader>m") 'org-latex-preview)
+  (targets-define-to latex-math-block "\\$(" ")\\$"
+                     pair :bind t :keys "m" :hooks anki-mode-hook)
+  (targets-define-to latex-MATH-block "\\$( " " )\\$"
+                     pair :bind t :keys "M" :hooks anki-mode-hook)
+  (defun anki-mode ()
+    "Major mode for editing Anki flashcards."
+    (interactive)
+    (kill-all-local-variables)
+    (use-local-map anki-mode-map)
+
+    (cl-flet ((replace-all
+               (regex replacement)
+               (replace-regexp (regexp-quote regex) replacement nil (point-min) (point-max))))
+      (replace-all "[$]" "$(")
+      (replace-all "[/$]" ")$")
+      (add-hook 'before-save-hook
+                (lambda ()
+                  (replace-all "$(" "[$]")
+                  (replace-all ")$" "[/$]"))
+                nil t))
+	
+    (setq require-final-newline nil)
+    (setq evil-surround-pairs-alist
+          (append '((?m . ("$(" . ")$"))
+                    (?M . ("$( " . " )$")))
+                  evil-surround-pairs-alist))
+    (setq major-mode 'anki-mode)
+    (setq mode-name "Anki")
+    (run-hooks 'anki-mode-hook))
 #+end_src
 * Org
 ** Org-mode
