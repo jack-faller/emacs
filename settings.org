@@ -227,6 +227,7 @@
 ** Only Translate a Prefix
 #+begin_src emacs-lisp
   (defun send-keys (keys)
+    "Type the key sequence (kbd keys)."
     (setq prefix-arg current-prefix-arg)
     (setq unread-command-events
           (nconc (listify-key-sequence (kbd keys))
