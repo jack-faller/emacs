@@ -477,6 +477,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
     "gb" 'switch-to-buffer
     "gB" 'ibuffer)
+
+  (evil-define-text-object evil-whole-buffer (count &optional beg end type)
+    "Whole buffer." (list (point-min) (point-max)))
+  (define-key evil-outer-text-objects-map "g" 'evil-whole-buffer)
 #+end_src
 ** Printing
 #+begin_src emacs-lisp
