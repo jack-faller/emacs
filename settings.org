@@ -673,23 +673,25 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                      pair :bind t :keys "m" :hooks anki-mode-hook)
   (targets-define-to latex-MATH-block "\\$( " " )\\$"
                      pair :bind t :keys "M" :hooks anki-mode-hook)
+
+  (defun replace-all (regex replacement)
+    (replace-regexp (regexp-quote regex) replacement nil (point-min) (point-max)))
+
   (defun anki-mode ()
     "Major mode for editing Anki flashcards."
     (interactive)
     (kill-all-local-variables)
     (use-local-map anki-mode-map)
 
-    (cl-flet ((replace-all
-               (regex replacement)
-               (replace-regexp (regexp-quote regex) replacement nil (point-min) (point-max))))
-      (replace-all "[$]" "$(")
-      (replace-all "[/$]" ")$")
-      (add-hook 'before-save-hook
-                (lambda ()
-                  (replace-all "$(" "[$]")
-                  (replace-all ")$" "[/$]"))
-                nil t))
-	
+    (replace-all "[$]" "$(")
+    (replace-all "[/$]" ")$")
+    (add-hook 'before-save-hook
+              (lambda () (replace-all "$(" "[$]"))
+              nil t)
+    (add-hook 'before-save-hook
+              (lambda () (replace-all ")$" "[/$]"))
+              nil t)
+
     (setq require-final-newline nil)
     (setq evil-surround-pairs-alist
           (append '((?m . ("$(" . ")$"))
