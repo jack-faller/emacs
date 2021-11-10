@@ -625,6 +625,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                      lsp-ui-sideline-show-hover nil
                      lsp-rust-analyzer-cargo-watch-command "clippy")
     (set-tab-width-in rust-mode 2)
+    (setq-mode-local rust-mode
+                     mode-print-formatter
+                     (lambda (text)
+                       (let ((braces ""))
+                         (concat "println!(\"{:?}\", (" text "));"))))
     (setq rust-indent-offset 2)
     (custom-set-default 'rustic-indent-offset 2))
   (pkg flycheck-rust
