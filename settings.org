@@ -146,7 +146,7 @@
                                   0)))
            (text (buffer-substring-no-properties text-start end)))
       (if (not valid) (error "No text on line.")
-        (funcall mode-print-formatter text))))
+        (funcall f text))))
 
   (defun replace-this-line (f)
     "act-on-line but replace the text with the result of f."
@@ -161,7 +161,7 @@
       (if (not valid) (error "No text on line.")
         (kill-region text-start end)
         (setf (point) text-start)
-        (insert (funcall mode-print-formatter text)))))
+        (insert (funcall f text)))))
 #+end_src
 ** Frame Kill Buffers
 #+begin_src emacs-lisp
@@ -486,7 +486,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 ** Printing
 #+begin_src emacs-lisp
   (defvar mode-print-formatter nil
-    "A function that takes a string of expressions separated by “; ” and turns them into a print statement in the current mode.")
+    "A function that takes a string of text on a line and turns them into a print statement in the current mode.")
 
   (defun print-text-on-line () "Apply mode-print-formatter to the text on the current line."
          (interactive)
