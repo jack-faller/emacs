@@ -488,9 +488,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (defvar mode-print-formatter nil
     "A function that takes a string of text on a line and turns them into a print statement in the current mode.")
 
-  (defun print-text-on-line () "Apply mode-print-formatter to the text on the current line."
-         (interactive)
-         (replace-this-line mode-print-formatter))
+  (defun print-text-on-line ()
+    "Apply mode-print-formatter to the text on the current line."
+    (interactive)
+    (replace-this-line mode-print-formatter))
 
   (evil-define-key 'normal 'global
     (kbd "gp") 'print-text-on-line)
@@ -630,7 +631,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (setq-mode-local rustic-mode mode-print-formatter
                      (lambda (text)
                        (let ((braces ""))
-                         (concat "println!(\"{:?}\", (" text "));")))))
+                         (concat "println!(\"{:#?}\", (" text "));")))))
   (pkg flycheck-rust
     :defer t
     :after (flycheck)
@@ -695,6 +696,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (add-hook 'before-save-hook
               (lambda () (replace-all ")$" "[/$]"))
               nil t)
+    (flyspell-mode)
 
     (setq require-final-newline nil)
     (setq evil-surround-pairs-alist
