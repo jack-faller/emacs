@@ -1,5 +1,4 @@
 #+title: "Emacs Settings"
-
 * Lexical Binding
 #+begin_src  emacs-lisp
   (setf lexical-binding t)
@@ -15,7 +14,7 @@
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (defvar all-the-icons-fonts-installed? t)
-  (setq display-warning-minimum-level :error)
+  (setf display-warning-minimum-level :error)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
@@ -32,10 +31,10 @@
   (defmacro after-load (modes &rest body)
     "Like with-eval-after-load, but also except a list of modes."
     (declare (indent 1))
-    (if (not (listp modes)) (setq modes (list modes)))
+    (if (not (listp modes)) (setf modes (list modes)))
     (push 'progn body)
     (dolist (i modes)
-      (setq body `(with-eval-after-load ',i ,body)))
+      (setf body `(with-eval-after-load ',i ,body)))
     body)
 
   (require 'cl-lib)
@@ -57,7 +56,7 @@
 #+end_src
 * Fix Slow Frame Manipulation in Pgtk-Emacs
 #+begin_src emacs-lisp
-  (setq pgtk-wait-for-event-timeout nil)
+  (setf pgtk-wait-for-event-timeout nil)
 #+end_src
 * Utilities
 ** Concat Symbols
@@ -92,7 +91,7 @@
     "Call map-files with body across fspec where fspec is (directory regexp) or a list of such forms."
     (declare (indent 1))
     (require 'find-lisp)
-    (when (stringp (car fspec)) (setq fspec (list fspec)))
+    (when (stringp (car fspec)) (setf fspec (list fspec)))
     `(map-files (lambda () ,@body)
                 (mapcan (lambda (e) (apply 'find-lisp-find-files e)) ',fspec)))
 
@@ -132,7 +131,7 @@
   (defmacro interactive-toggle (var-name)
     "Define a toggle function for var-name and return it."
     `(evil-define-command (symcat 'toggle- var-name)
-       (setq ,var-name (not ,var-name))))
+       (setf ,var-name (not ,var-name))))
 #+end_src
 ** Hook
 #+begin_src emacs-lisp
@@ -198,13 +197,13 @@
 #+end_src
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
-  (setq custom-file (ensure-file (concat user-emacs-directory "custom.el")))
+  (setf custom-file (ensure-file (concat user-emacs-directory "custom.el")))
 #+end_src
 * Deal With Backups
 #+begin_src emacs-lisp
   (push '("\\.\\(vcf\\|gpg\\)$" . sensitive-minor-mode) auto-mode-alist) ; don't backup keys
   (defvar backup-dir (ensure-directory (concat user-emacs-directory "backups/")))
-  (setq
+  (setf
    backup-by-copying t ; don't clobber symlinks
    backup-directory-alist `(("." . ,backup-dir)) ; don't litter my fs tree
    delete-old-versions t
@@ -233,8 +232,8 @@
 #+begin_src emacs-lisp
   (defun send-keys (keys)
     "Type the key sequence (kbd keys)."
-    (setq prefix-arg current-prefix-arg)
-    (setq unread-command-events
+    (setf prefix-arg current-prefix-arg)
+    (setf unread-command-events
           (nconc (listify-key-sequence (kbd keys))
                  unread-command-events)))
   (defmacro prefix-translate (key states event &rest bindings)
@@ -257,7 +256,7 @@
 #+begin_src emacs-lisp
   (setq-default tab-width 2)
   (setq-default evil-shift-width tab-width)
-  (setq backward-delete-char-untabify-method 'all)
+  (setf backward-delete-char-untabify-method 'all)
   (defmacro set-tab-width-in (mode tab-width)
     `(setq-mode-local ,mode
                       tab-width ,tab-width
@@ -289,7 +288,7 @@
 #+end_src
 ** Paren Highlighting
 #+begin_src emacs-lisp
-  (setq show-paren-delay 0)
+  (setf show-paren-delay 0)
   (show-paren-mode)
   (electric-pair-mode)
 #+end_src
@@ -305,7 +304,7 @@
     (require 'projectile)
     (require 'dashboard))
   (after-load dashboard
-    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
+    (setf initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
           dashboard-projects-backend 'projectile
           dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
     (dashboard-setup-startup-hook))
@@ -320,14 +319,14 @@
   (pkg highlight-indent-guides :require t)
   (diminish 'highlight-indent-guides-mode)
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-  (setq highlight-indent-guides-method 'character)
+  (setf highlight-indent-guides-method 'character)
 #+end_src
 * Count Keys
 #+begin_src emacs-lisp
   (pkg keyfreq :require t)
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1)
-  (setq keyfreq-excluded-commands '(self-insert-command))
+  (setf keyfreq-excluded-commands '(self-insert-command))
 #+end_src
 * Vim Keys (Evil)
 ** Evil Requirements
@@ -335,11 +334,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (pkg undo-tree :require t)
   (diminish 'undo-tree-mode)
-  (setq undo-tree-visualizer-timestamps t
+  (setf undo-tree-visualizer-timestamps t
         undo-tree-visualizer-lazy-drawing nil
         undo-tree-auto-save-history t)
   (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
-    (setq undo-tree-history-directory-alist (list (cons "." undo-dir))))
+    (setf undo-tree-history-directory-alist (list (cons "." undo-dir))))
   ;; this is broken, the after save hook below fixes it, but it still needs to be here
   (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
   (global-undo-tree-mode)
@@ -353,7 +352,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+end_src
 ** Evil
 #+begin_src emacs-lisp
-  (setq
+  (setf
    evil-want-keybinding nil
    evil-search-module 'evil-search
    evil-undo-system 'undo-tree
@@ -374,13 +373,13 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (pkg evil :require t)
 
   (evil-mode 1)
-  (setq evil-emacs-state-cursor 'box
+  (setf evil-emacs-state-cursor 'box
         evil-normal-state-cursor 'box
         evil-visual-state-cursor 'box
         evil-insert-state-cursor 'bar
         evil-replace-state-cursor 'hbar
         evil-operator-state-cursor 'hollow)
-  (setq evil-extra-operator-eval-modes-alist
+  (setf evil-extra-operator-eval-modes-alist
         '((lisp-mode slime-eval-region)
           (scheme-mode geiser-eval-region)
           (clojure-mode cider-eval-region)
@@ -408,10 +407,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (pkg evil-exchange :require t)
   (evil-exchange-install)
 
-  (setq evil-collection-setup-minibuffer t)
+  (setf evil-collection-setup-minibuffer t)
   (pkg evil-collection :require t)
   (diminish 'evil-collection-unimpaired-mode)
-  (setq evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
+  (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
   (evil-collection-init)
   (dolist (i evil-collection-minibuffer-maps)
     (evil-define-key 'normal (eval i)
@@ -600,12 +599,12 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 ** Rust
 #+begin_src emacs-lisp
   (pkg rustic)
-  (setq lsp-rust-server 'rust-analyzer)
+  (setf lsp-rust-server 'rust-analyzer)
   (setq-mode-local rustic-mode
                    lsp-ui-sideline-show-hover nil
                    lsp-rust-analyzer-cargo-watch-command "clippy")
   (set-tab-width-in rust-mode 2)
-  (setq rust-indent-offset 2)
+  (setf rust-indent-offset 2)
   (custom-set-default 'rustic-indent-offset 2)
   (setq-mode-local rustic-mode mode-print-formatter
                    (lambda (text)
@@ -624,7 +623,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                    (lambda (str)
                      (setf str (replace-regexp-in-string ";" "," str))
                      (concat "GD.PrintS(" str ");")))
-  ;; (setq lsp-csharp-server-path "/usr/bin/omnisharp")
+  ;; (setf lsp-csharp-server-path "/usr/bin/omnisharp")
   (add-hook 'csharp-mode-hook 'lsp)
   (set-tab-width-in csharp-mode 4)
 #+end_src
@@ -634,7 +633,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (add-hook 'scheme-mode-hook 'geiser-mode)
   (add-hook 'scheme-mode-hook 'lispyville-mode)
   (add-hook 'geiser-mode-hook 'run-geiser)
-  (setq geiser-mode-start-repl-p t)
+  (setf geiser-mode-start-repl-p t)
 
   (after-load geiser
     (pkg geiser-guile)
@@ -671,13 +670,13 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
               nil t)
     (flyspell-mode)
 
-    (setq require-final-newline nil)
-    (setq evil-surround-pairs-alist
+    (setf require-final-newline nil)
+    (setf evil-surround-pairs-alist
           (append '((?m . ("$(" . ")$"))
                     (?M . ("$( " . " )$")))
                   evil-surround-pairs-alist))
-    (setq major-mode 'anki-mode)
-    (setq mode-name "Anki")
+    (setf major-mode 'anki-mode)
+    (setf mode-name "Anki")
     (run-hooks 'anki-mode-hook))
 #+end_src
 * Org
@@ -694,7 +693,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
     (setq-local electric-pair-inhibit-predicate
                 `(lambda (p) (or (char-equal p ?<)
                                  (,electric-pair-inhibit-predicate p)))))
-  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
+  (setf org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
         org-hide-emphasis-markers t
         org-pretty-entities t
         org-pretty-entities-include-sub-superscripts t
@@ -710,7 +709,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
      '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
      '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
     ;; Don't make text bigger after 8 levels.
-    (setq org-cycle-level-faces nil))
+    (setf org-cycle-level-faces nil))
 #+end_src
 ** Hide Org Markup
 #+begin_src emacs-lisp
@@ -726,7 +725,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 ** Roam
 #+begin_src emacs-lisp
   (pkg org-roam)
-  (setq org-roam-v2-ack t
+  (setf org-roam-v2-ack t
         org-roam-completion-everywhere t
         org-roam-directory (file-truename "~/org"))
   (defun org-roam-get-unlinked-node-ids ()
@@ -752,7 +751,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                                          ,(concat "#+title: ${title}\n#+filetags: " tags "\n"))
                       :unnarrowed t)))
-      (setq org-roam-capture-templates
+      (setf org-roam-capture-templates
             (list '("d" "default" plain "\n%?"
                     :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
                     :unnarrowed t)
@@ -766,11 +765,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
            (mapcar (lambda (templ)
                      (setf (car templ) (concat "t" (car templ)))
                      (let (out finnish-used? i)
-                       (while (setq i (pop templ))
+                       (while (setf i (pop templ))
                          (cond
                           ((eq i :if-new)
                            (push i out)
-                           (setq i (pop templ))
+                           (setf i (pop templ))
                            (cl-symbol-macrolet ((target (caddr i)))
                              (let ((reg (rx line-start "#+filetags:"
                                             (+ space)
@@ -883,7 +882,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (pkg company :require t)
   (diminish 'company-mode)
-  (setq company-idle-delay 0
+  (setf company-idle-delay 0
         company-minimum-prefix-length 1
         company-selection-wrap-around t)
 
@@ -908,7 +907,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (pkg company-box :require t :github "jack-faller/company-box") ; use my fix for tng-mode docstrings
   (add-hook 'company-tng-mode-hook 'company-box-mode)
-  (setq company-box-doc-delay 0.13
+  (setf company-box-doc-delay 0.13
         company-box-icons-all-the-icons
         `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :face 'all-the-icons-purple))
           (Text . ,(all-the-icons-material "text_fields" :height 0.8 :face 'all-the-icons-green))
@@ -947,18 +946,18 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 ** Eldoc
 #+begin_src emacs-lisp
   (diminish 'eldoc-mode)
-  (setq eldoc-idle-delay 0)
+  (setf eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
 *** Performance
 These variables are reccomended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
-  (setq read-process-output-max (* 1024 1024))
+  (setf read-process-output-max (* 1024 1024))
 #+end_src
 *** LSP-Mode
 #+begin_src emacs-lisp
   (pkg lsp-mode)
-  (setq lsp-eldoc-enable-hover nil
+  (setf lsp-eldoc-enable-hover nil
         lsp-signature-render-documentation nil)
 
   (after-load lsp
@@ -982,7 +981,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
 *** Prettify
 #+begin_src emacs-lisp
   (pkg lsp-ui)
-  (setq lsp-ui-doc-enable t
+  (setf lsp-ui-doc-enable t
         lsp-ui-doc-delay most-positive-fixnum
         lsp-ui-doc-position 'top
         lsp-ui-sideline-show-hover t
@@ -1022,7 +1021,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
   (pkg projectile :require t)
   (projectile-mode)
-  (setq compilation-scroll-output t)
+  (setf compilation-scroll-output t)
   (evil-define-key 'normal 'global
     (kbd "<global-leader>pd") 'projectile-edit-dir-locals
     (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
@@ -1038,7 +1037,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (dolist (map evil-collection-compile-maps)
     (evil-define-key 'normal map
       "q" (interactive-chain 'kill-compilation 'quit-window)))
-  (setq projectile-project-search-path '("~/code/"))
+  (setf projectile-project-search-path '("~/code/"))
 #+end_src
 * Error Reporting with Fly-*
 ** Spellcheck
@@ -1048,17 +1047,17 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (add-hook 'text-mode-hook 'flyspell-mode)
   (defvar dict "en_GB"
     "Dictionary to use.")
-  (setq flyspell-issue-message-flag nil
+  (setf flyspell-issue-message-flag nil
         ispell-local-dictionary "dict"
         ispell-local-dictionary-alist
         `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
   (cond
    ((executable-find "hunspell")
-    (setq ispell-program-name "hunspell")
+    (setf ispell-program-name "hunspell")
     (when (boundp 'ispell-hunspell-dictionary-alist)
-      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+      (setf ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
    ((executable-find "aspell")
-    (setq ispell-program-name "aspell"
+    (setf ispell-program-name "aspell"
           ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
                               "--run-together" "--run-together-limit=16"))))
   (evil-define-key 'normal flyspell-mode-map
