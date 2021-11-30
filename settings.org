@@ -1,5 +1,9 @@
 #+title: "Emacs Settings"
 
+* Lexical Binding
+#+begin_src  emacs-lisp
+  (setf lexical-binding t)
+#+end_src
 * Hide Bars Quickly
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
@@ -7,7 +11,7 @@
   (tool-bar-mode -1)
   (save-place-mode 1)
 #+end_src
-* Bootstrap Straight + All The Icons Stuff
+* Bootstrap Straight + Pkg Macros + All The Icons Stuff
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (defvar all-the-icons-fonts-installed? t)
@@ -16,7 +20,7 @@
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
     (unless (file-exists-p bootstrap-file)
-      (setq all-the-icons-fonts-installed? nil)
+      (setf all-the-icons-fonts-installed? nil)
       (with-current-buffer
           (url-retrieve-synchronously
            "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
@@ -25,23 +29,31 @@
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
 
-  (straight-use-package 'use-package)
-  (defmacro pkg (name &rest args)
-    "Load a package like use package."
+  (defmacro after-load (modes &rest body)
+    "Like with-eval-after-load, but also except a list of modes."
     (declare (indent 1))
-    `(use-package ,name :straight t ,@args))
-  (defmacro pkg-github (name repo &rest args)
-    (declare (indent 2))
-    `(use-package ,name
-       :straight (,name
-                  :type git
-                  :host github
-                  :repo ,repo)
-       ,@args))
+    (if (not (listp modes)) (setq modes (list modes)))
+    (push 'progn body)
+    (dolist (i modes)
+      (setq body `(with-eval-after-load ',i ,body)))
+    body)
+
+  (require 'cl-lib)
+  (cl-defmacro pkg (name &optional &key require github)
+    (list
+     'progn
+     (if github
+         `(straight-use-package '(,name
+                                  :type git
+                                  :host github
+                                  :repo ,github))
+       `(straight-use-package ',name))
+     (if require `(require ',name) nil)
+     `',name))
 #+end_src
 ** Hide Minor Modes
 #+begin_src emacs-lisp
-(pkg diminish)
+  (pkg diminish :require t)
 #+end_src
 * Fix Slow Frame Manipulation in Pgtk-Emacs
 #+begin_src emacs-lisp
@@ -131,7 +143,7 @@
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
-	(pkg mode-local :ensure nil)
+  (pkg mode-local :require t)
 #+end_src
 ** Act On Line
 #+begin_src emacs-lisp
@@ -259,24 +271,21 @@
 #+end_src
 ** Icons
 #+begin_src emacs-lisp
-  (pkg all-the-icons
-      :defer t
-      :config
-      (unless all-the-icons-fonts-installed?
-        (all-the-icons-install-fonts t)))
+  (pkg all-the-icons)
+  (after-load all-the-icons
+   (unless all-the-icons-fonts-installed?
+     (all-the-icons-install-fonts t)))
 #+end_src
 
 ** Line Numbers
 #+begin_src emacs-lisp
-  (pkg display-line-numbers
-    :ensure nil
-    :config
-    (global-display-line-numbers-mode 1)
-    (setq-default display-line-numbers t
-                  display-line-numbers-widen t
-                  display-line-numbers-type 'relative
-                  display-line-numbers-width-start t
-                  display-line-numbers-grow-only t))
+  (pkg display-line-numbers :require t)
+  (global-display-line-numbers-mode 1)
+  (setq-default display-line-numbers t
+                display-line-numbers-widen t
+                display-line-numbers-type 'relative
+                display-line-numbers-width-start t
+                display-line-numbers-grow-only t)
 #+end_src
 ** Paren Highlighting
 #+begin_src emacs-lisp
@@ -286,62 +295,56 @@
 #+end_src
 ** Gruvbox Theme
 #+begin_src emacs-lisp
-  (pkg gruvbox-theme
-    :config
-    (load-theme 'gruvbox-dark-hard t))
+  (pkg gruvbox-theme :require t)
+  (load-theme 'gruvbox-dark-hard t)
 #+end_src
 ** Start Screen (Dashboard)
 #+begin_src emacs-lisp
-  (pkg dashboard
-    :after (projectile)
-    :init
+  (pkg dashboard)
+  (after-load config
+    (require 'projectile)
+    (require 'dashboard))
+  (after-load dashboard
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
-          dashboard-projects-backend 'projectile)
-    :config
-    (setq dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
+          dashboard-projects-backend 'projectile
+          dashboard-items '((recents . 5) (bookmarks . 5) (agenda . 5) (projects . 5)))
     (dashboard-setup-startup-hook))
 #+end_src
 ** Turn ^L (Line Feed) Into a Horizontal Line
 #+begin_src emacs-lisp
-  (pkg page-break-lines
-    :config
-    (global-page-break-lines-mode))
+  (pkg page-break-lines :require t)
+  (global-page-break-lines-mode)
 #+end_src
 ** Indent Guides
 #+begin_src emacs-lisp
-  (pkg highlight-indent-guides
-    :diminish highlight-indent-guides-mode
-    :config
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-    (setq highlight-indent-guides-method 'character))
+  (pkg highlight-indent-guides :require t)
+  (diminish 'highlight-indent-guides-mode)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'character)
 #+end_src
 * Count Keys
 #+begin_src emacs-lisp
-  (pkg keyfreq ; count keys
-    :config
-    (keyfreq-mode 1)
-    (keyfreq-autosave-mode 1)
-    (require 'keyfreq)
-    (setq keyfreq-excluded-commands '(self-insert-command)))
+  (pkg keyfreq :require t)
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  (setq keyfreq-excluded-commands '(self-insert-command))
 #+end_src
 * Vim Keys (Evil)
 ** Evil Requirements
 Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
-  (pkg undo-tree
-    :diminish undo-tree-mode
-    :init
-    (setq undo-tree-visualizer-timestamps t
-          undo-tree-visualizer-lazy-drawing nil
-          undo-tree-auto-save-history t)
-                                          ; this is broken, the after save hook below fixes it, but it still needs to be here
-    (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
-      (setq undo-tree-history-directory-alist (list (cons "." undo-dir))))
-    :config
-    (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
-    (global-undo-tree-mode))
+  (pkg undo-tree :require t)
+  (diminish 'undo-tree-mode)
+  (setq undo-tree-visualizer-timestamps t
+        undo-tree-visualizer-lazy-drawing nil
+        undo-tree-auto-save-history t)
+  (let ((undo-dir (expand-file-name "undo" user-emacs-directory)))
+    (setq undo-tree-history-directory-alist (list (cons "." undo-dir))))
+  ;; this is broken, the after save hook below fixes it, but it still needs to be here
+  (hook 'after-save-hook (when undo-tree-mode (undo-tree-save-history nil t)))
+  (global-undo-tree-mode)
 
-  (pkg goto-chg)
+  (pkg goto-chg :require t)
 #+end_src
 ** Make <backspace> Work Like C-g
 #+begin_src emacs-lisp
@@ -350,76 +353,72 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+end_src
 ** Evil
 #+begin_src emacs-lisp
-  (pkg evil
-    :init
-    (setq
-     evil-want-keybinding nil
-     evil-cross-lines t
-     evil-search-module 'evil-search
-     evil-undo-system 'undo-tree
-     evil-ex-substitute-global t
-     evil-want-C-u-scroll t
-     evil-want-C-i-jump t
-     evil-want-visual-char-semi-exclusive t
-     evil-want-Y-yank-to-eol t
-     evil-ex-search-vim-style-regexp t
-     evil-ex-substitute-global t
-     evil-ex-visual-char-range t ; column range for ex commands this doesn't work
-     evil-symbol-word-search t	 ; more vim-like behavior
-     evil-want-change-word-to-end nil			; ce and cw are now different
-     shift-select-mode nil					; don't activate mark on shift-click
-     )
-    :config
-    (evil-mode 1)
-    (setq evil-emacs-state-cursor 'box
-          evil-normal-state-cursor 'box
-          evil-visual-state-cursor 'box
-          evil-insert-state-cursor 'bar
-          evil-replace-state-cursor 'hbar
-          evil-operator-state-cursor 'hollow)
-    (setq evil-extra-operator-eval-modes-alist
-          '((lisp-mode slime-eval-region)
-            (scheme-mode geiser-eval-region)
-            (clojure-mode cider-eval-region)
-            (ruby-mode ruby-send-region)
-            (enh-ruby-mode ruby-send-region)
-            (python-mode python-shell-send-region)
-            (julia-mode julia-shell-run-region)))
-    (evil-define-key 'normal evil-ex-search-keymap
-      "j" 'next-line-or-history-element
-      "k" 'previous-line-or-history-element)
-    (evil-define-key 'motion 'global
-      (kbd "M-e") 'evil-backward-word-end
-      (kbd "M-E") 'evil-backward-WORD-end))
+  (setq
+   evil-want-keybinding nil
+   evil-search-module 'evil-search
+   evil-undo-system 'undo-tree
+   evil-cross-lines t
+   evil-ex-substitute-global t
+   evil-want-C-u-scroll t
+   evil-want-C-i-jump t
+   evil-want-visual-char-semi-exclusive t
+   evil-want-Y-yank-to-eol t
+   evil-ex-search-vim-style-regexp t
+   evil-ex-substitute-global t
+   evil-ex-visual-char-range t ; column range for ex commands this doesn't work
+   evil-symbol-word-search t	 ; more vim-like behavior
+   evil-want-change-word-to-end nil ; ce and cw are now different
+   shift-select-mode nil						; don't activate mark on shift-click
+   )
 
-  (pkg evil-surround
-    :config
-    (setq-default evil-surround-pairs-alist
-                  (append '((?“ . ("“" . "”"))
-                            (?” . ("“ " . " ”")))
-                          evil-surround-pairs-alist))
-    (global-evil-surround-mode 1))
+  (pkg evil :require t)
 
-  (pkg-github targets "noctuid/targets.el"
-    :config
-    (targets-setup t))
+  (evil-mode 1)
+  (setq evil-emacs-state-cursor 'box
+        evil-normal-state-cursor 'box
+        evil-visual-state-cursor 'box
+        evil-insert-state-cursor 'bar
+        evil-replace-state-cursor 'hbar
+        evil-operator-state-cursor 'hollow)
+  (setq evil-extra-operator-eval-modes-alist
+        '((lisp-mode slime-eval-region)
+          (scheme-mode geiser-eval-region)
+          (clojure-mode cider-eval-region)
+          (ruby-mode ruby-send-region)
+          (enh-ruby-mode ruby-send-region)
+          (python-mode python-shell-send-region)
+          (julia-mode julia-shell-run-region)))
+  (evil-define-key 'normal evil-ex-search-keymap
+    "j" 'next-line-or-history-element
+    "k" 'previous-line-or-history-element)
+  (evil-define-key 'motion 'global
+    (kbd "M-e") 'evil-backward-word-end
+    (kbd "M-E") 'evil-backward-WORD-end)
 
-  (pkg evil-exchange
-    :config (evil-exchange-install))
+  (pkg evil-surround :require t)
+  (setq-default evil-surround-pairs-alist
+                (append '((?“ . ("“" . "”"))
+                          (?” . ("“ " . " ”")))
+                        evil-surround-pairs-alist))
+  (global-evil-surround-mode 1)
 
-  (pkg evil-collection
-    :diminish evil-collection-unimpaired-mode
-    :after evil
-    :init
-    (setq evil-collection-setup-minibuffer t)
-    :config
-    (setq evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
-    (evil-collection-init)
-    (dolist (i evil-collection-minibuffer-maps)
-      (evil-define-key 'normal (eval i)
-        "cc" (lambda () (interactive) (evil-change (line-beginning-position) (line-end-position)))
-        "j" 'previous-complete-history-element
-        "k" 'next-complete-history-element)))
+  (pkg targets :require t :github "noctuid/targets.el")
+  (targets-setup t)
+
+  (pkg evil-exchange :require t)
+  (evil-exchange-install)
+
+  (setq evil-collection-setup-minibuffer t)
+  (pkg evil-collection :require t)
+  (diminish 'evil-collection-unimpaired-mode)
+  (setq evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
+  (evil-collection-init)
+  (dolist (i evil-collection-minibuffer-maps)
+    (evil-define-key 'normal (eval i)
+      ;; TODO see if this was breaking C in mini-buffer, maybe fix with advice
+      ;; "cc" (lambda () (interactive) (evil-change (line-beginning-position) (line-end-position)))
+      "j" 'previous-complete-history-element
+      "k" 'next-complete-history-element))
 #+end_src
 * Global Binds
 #+begin_src emacs-lisp
@@ -511,47 +510,38 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
-  (pkg centered-cursor-mode
-    :diminish centered-cursor-mode
-    :config
-    (global-centered-cursor-mode 1))
+  (pkg centered-cursor-mode :require t)
+  (diminish 'centered-cursor-mode)
+  (global-centered-cursor-mode 1)
 #+end_src
 * Restart
 #+begin_src emacs-lisp
-  (pkg restart-emacs
-    :defer t
-    :preface
-    (evil-define-key 'global 'normal
-      (kbd "<global-leader>rr") 'restart-emacs))
+  (pkg restart-emacs)
+  (evil-define-key 'global 'normal
+    (kbd "<global-leader>rr") 'restart-emacs)
 #+end_src
 * Languages / File-types
 ** Lisp
 #+begin_src emacs-lisp
-  (pkg lispy
-    :defer t
-    :diminish lispy-mode
-    :after evil-collection)
+  (pkg lispy)
+  (diminish 'lispy-mode)
 
-  (pkg lispyville
-    :defer t
-    :after (targets lispy)
-    :diminish lispyville-mode
-    :preface
-    (add-hook 'emacs-lisp-mode-hook 'lispyville-mode)
-    (add-hook 'common-lisp-mode-hook 'lispyville-mode)
-    (add-hook 'lisp-mode-hook 'lispyville-mode)
-    :init
-    (hook 'lispyville-mode-hook
-      (cl-macrolet ((defto (name key)
-                      `(targets-define-to ,name ',name nil object :bind t
-                                          :keys ,key :hooks lispyville-mode-hook)))
-        (defto lispyville-comment "c")
-        (defto lispyville-atom "a")
-        (defto lispyville-list "f")
-        (defto lispyville-sexp "x")
-        (defto lispyville-function "d")
-        (defto lispyville-string "s")))
-    :config
+  (pkg lispyville)
+  (diminish 'lispyville-mode)
+  (add-hook 'emacs-lisp-mode-hook 'lispyville-mode)
+  (add-hook 'common-lisp-mode-hook 'lispyville-mode)
+  (add-hook 'lisp-mode-hook 'lispyville-mode)
+  (hook 'lispyville-mode-hook
+    (cl-macrolet ((defto (name key)
+                    `(targets-define-to ,name ',name nil object :bind t
+                                        :keys ,key :hooks lispyville-mode-hook)))
+      (defto lispyville-comment "c")
+      (defto lispyville-atom "a")
+      (defto lispyville-list "f")
+      (defto lispyville-sexp "x")
+      (defto lispyville-function "d")
+      (defto lispyville-string "s")))
+  (after-load lispyville
     (lispyville-set-key-theme '(operators
                                 c-w
                                 prettify
@@ -606,57 +596,47 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>l") 'lispyville-insert-at-end-of-list
       (kbd "<leader>o") 'lispyville-open-below-list
       (kbd "<leader>O") 'lispyville-open-above-list))
-
 #+end_src
 ** Rust
 #+begin_src emacs-lisp
-  (pkg rustic
-    :defer t
-    :after (lsp lsp-ui)
-    :preface
-    (setq lsp-rust-server 'rust-analyzer)
-    (setq-mode-local rustic-mode
-                     lsp-ui-sideline-show-hover nil
-                     lsp-rust-analyzer-cargo-watch-command "clippy")
-    (set-tab-width-in rust-mode 2)
-    (setq rust-indent-offset 2)
-    (custom-set-default 'rustic-indent-offset 2)
-    (setq-mode-local rustic-mode mode-print-formatter
-                     (lambda (text)
-                       (let ((braces ""))
-                         (concat "println!(\"{:#?}\", (" text "));")))))
-  (pkg flycheck-rust
-    :defer t
-    :after (flycheck)
-    :preface
-    (add-hook 'rust-mode-hook 'flycheck-rust-setup))
+  (pkg rustic)
+  (setq lsp-rust-server 'rust-analyzer)
+  (setq-mode-local rustic-mode
+                   lsp-ui-sideline-show-hover nil
+                   lsp-rust-analyzer-cargo-watch-command "clippy")
+  (set-tab-width-in rust-mode 2)
+  (setq rust-indent-offset 2)
+  (custom-set-default 'rustic-indent-offset 2)
+  (setq-mode-local rustic-mode mode-print-formatter
+                   (lambda (text)
+                     (let ((braces ""))
+                       (concat "println!(\"{:#?}\", (" text "));"))))
+
+  (pkg flycheck-rust)
+  (add-hook 'rust-mode-hook 'flycheck-rust-setup)
 #+end_src
 ** C#
 #+begin_src emacs-lisp
-  (pkg csharp-mode
-    :defer t
-    :after (lsp lsp-ui)
-    :preface
-    (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
-    (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
-    (setq-mode-local csharp-mode mode-print-formatter
-                     (lambda (str)
-                       (setf str (replace-regexp-in-string ";" "," str))
-                       (concat "GD.PrintS(" str ");")))
-    ;; (setq lsp-csharp-server-path "/usr/bin/omnisharp")
-    (add-hook 'csharp-mode-hook 'lsp)
-    (set-tab-width-in csharp-mode 4))
+  (pkg csharp-mode)
+  (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-mode))
+  (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
+  (setq-mode-local csharp-mode mode-print-formatter
+                   (lambda (str)
+                     (setf str (replace-regexp-in-string ";" "," str))
+                     (concat "GD.PrintS(" str ");")))
+  ;; (setq lsp-csharp-server-path "/usr/bin/omnisharp")
+  (add-hook 'csharp-mode-hook 'lsp)
+  (set-tab-width-in csharp-mode 4)
 #+end_src
 ** Scheme
 #+begin_src emacs-lisp
-  (pkg geiser
-    :defer t
-    :preface
-    (add-hook 'scheme-mode-hook 'geiser-mode)
-    (add-hook 'scheme-mode-hook 'lispyville-mode)
-    (add-hook 'geiser-mode-hook 'run-geiser)
-    :init
-    (setq geiser-mode-start-repl-p t)
+  (pkg geiser)
+  (add-hook 'scheme-mode-hook 'geiser-mode)
+  (add-hook 'scheme-mode-hook 'lispyville-mode)
+  (add-hook 'geiser-mode-hook 'run-geiser)
+  (setq geiser-mode-start-repl-p t)
+
+  (after-load geiser
     (pkg geiser-guile)
     (evil-define-key 'normal geiser-mode-map
       (kbd "<insert>") 'geiser-mode-switch-to-repl))
@@ -703,32 +683,24 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 * Org
 ** Org-mode
 #+begin_src emacs-lisp
-  (pkg org
-    :defer t
-    :ensure nil
-    :preface
-    (evil-define-key 'normal 'global
-      (kbd "<global-leader>a") 'org-agenda
-      (kbd "<global-leader>A") (evil-define-command visit-roam-agenda ()
-                                 (require 'org-roam)
-                                 (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
-                                 (goto-char (point-max))))
-    :init
-    (hook 'org-mode-hook
-      (org-indent-mode)
-      (setq-local electric-pair-inhibit-predicate
-                  `(lambda (p) (or (char-equal p ?<)
-                                   (,electric-pair-inhibit-predicate p)))))
-    (evil-define-key 'normal org-mode-map
-      (kbd "<leader>i") 'org-display-inline-images
-      (kbd "<leader>I") 'org-remove-inline-images
-      (kbd "<leader>m") 'org-latex-preview)
-    (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
-          org-hide-emphasis-markers t
-          org-pretty-entities t
-          org-pretty-entities-include-sub-superscripts t
-          org-startup-with-latex-preview t)
-    :config
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>a") 'org-agenda
+    (kbd "<global-leader>A") (evil-define-command visit-roam-agenda ()
+                               (require 'org-roam)
+                               (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
+                               (goto-char (point-max))))
+  (hook 'org-mode-hook
+    (org-indent-mode)
+    (setq-local electric-pair-inhibit-predicate
+                `(lambda (p) (or (char-equal p ?<)
+                                 (,electric-pair-inhibit-predicate p)))))
+  (setq org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "DONE"))
+        org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-pretty-entities-include-sub-superscripts t
+        org-startup-with-latex-preview t)
+
+  (after-load org
     ;; Increase size of latex previews.
     (plist-put org-format-latex-options :scale 1.3)
     (custom-set-faces
@@ -738,68 +710,48 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
      '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
      '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
     ;; Don't make text bigger after 8 levels.
-    (setq org-cycle-level-faces nil)
-    ;; Snippets for structure templates..
-    (require 'org-tempo))
+    (setq org-cycle-level-faces nil))
 #+end_src
 ** Hide Org Markup
 #+begin_src emacs-lisp
-  (pkg org-appear
-    :defer t
-    :after (org)
-    :preface
-    (add-hook 'org-mode-hook 'org-appear-mode)
-    (mapc (lambda (sym) (set sym t))
-          '(org-appear-autoemphasis
-            org-appear-autolinks
-            org-appear-autoentities
-            org-appear-autokeywords
-            org-appear-autosubmarkers)))
-#+end_src
-** Fancy Dashes for Lists
-#+begin_src emacs-lisp
-  (pkg org-superstar
-    :defer t
-    :after (org)
-    :preface
-    (add-hook 'org-mode-hook 'evil-org-mode)
-    :init
-    (setq org-superstar-leading-bullet "·")
-    :config
-    (cl-delete-if (lambda (elt) (eq (car elt) ?+)) org-superstar-item-bullet-alist))
+  (pkg org-appear)
+  (add-hook 'org-mode-hook 'org-appear-mode)
+  (mapc (lambda (sym) (set sym t))
+        '(org-appear-autoemphasis
+          org-appear-autolinks
+          org-appear-autoentities
+          org-appear-autokeywords
+          org-appear-autosubmarkers))
 #+end_src
 ** Roam
 #+begin_src emacs-lisp
-  (pkg org-roam
-    :defer t
-    :after (org)
-    :preface
-    (hook 'org-mode-hook (require 'org-roam))
-    (setq org-roam-v2-ack t
-          org-roam-completion-everywhere t
-          org-roam-directory (file-truename "~/org"))
-    (defun org-roam-get-unlinked-node-ids ()
-      "Get the IDs of nodes with no backlinks."
-      (cl-set-difference (mapcar 'car (org-roam-db-query [:select id :from nodes]))
-                         (mapcar 'car (org-roam-db-query [:select dest :from links]))
-                         :test 'string=))
-    (evil-define-key 'normal 'global
-      (kbd "<global-leader>nf") 'org-roam-node-find
-      (kbd "<global-leader>nu")
-      (evil-define-command org-roam-unlinked-node-find (&optional other-window initial-input filter-fn)
-        "Find nodes with no backlinks."
-        (let ((titles (mapcar (lambda (id) (-> id org-roam-node-from-id org-roam-node-title))
-                              (org-roam-get-unlinked-node-ids))))
-          (org-roam-node-visit (org-roam-node-from-title-or-alias
-                                (completing-read "Node: " titles filter-fn t initial-input))
-                               other-window))))
-    :config
+  (pkg org-roam)
+  (setq org-roam-v2-ack t
+        org-roam-completion-everywhere t
+        org-roam-directory (file-truename "~/org"))
+  (defun org-roam-get-unlinked-node-ids ()
+    "Get the IDs of nodes with no backlinks."
+    (cl-set-difference (mapcar 'car (org-roam-db-query [:select id :from nodes]))
+                       (mapcar 'car (org-roam-db-query [:select dest :from links]))
+                       :test 'string=))
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>nf") 'org-roam-node-find
+    (kbd "<global-leader>nu")
+    (evil-define-command org-roam-unlinked-node-find (&optional other-window initial-input filter-fn)
+      "Find nodes with no backlinks."
+      (let ((titles (mapcar (lambda (id) (-> id org-roam-node-from-id org-roam-node-title))
+                            (org-roam-get-unlinked-node-ids))))
+        (org-roam-node-visit (org-roam-node-from-title-or-alias
+                              (completing-read "Node: " titles filter-fn t initial-input))
+                             other-window))))
+
+  (after-load org-roam
     (cl-flet ((template-with-tags
-              (key name tags)
-              `(,key ,name plain "\n%?"
-                     :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                                        ,(concat "#+title: ${title}\n#+filetags: " tags "\n"))
-                     :unnarrowed t)))
+               (key name tags)
+               `(,key ,name plain "\n%?"
+                      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                                         ,(concat "#+title: ${title}\n#+filetags: " tags "\n"))
+                      :unnarrowed t)))
       (setq org-roam-capture-templates
             (list '("d" "default" plain "\n%?"
                     :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
@@ -833,6 +785,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
                           (t (push i out))))
                        (nreverse (cons t (cons :immediate-finish out)))))
                    (copy-tree org-roam-capture-templates)))
+
     (evil-define-key 'insert org-mode-map
       (kbd "<leader>n") 'org-roam-node-insert)
     (evil-define-key 'normal org-mode-map
@@ -852,15 +805,13 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+end_src
 ** Evil Integration
 #+begin_src emacs-lisp
-  (pkg evil-org
-    :defer t
-    :after (evil org)
-    :preface
-    (add-hook 'org-mode-hook 'evil-org-mode)
-    :config
+  (pkg evil-org)
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (after-load evil-org
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
     (evil-define-key 'insert org-mode-map
+      (kbd "<leader>b") 'org-insert-structure-template
       (kbd "M-h") 'org-metaleft
       (kbd "M-l") 'org-metaright)
     (evil-define-key 'normal org-capture-mode-map
@@ -870,6 +821,9 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>.") 'org-time-stamp
       (kbd "<leader>l") 'org-insert-link)
     (evil-define-key 'normal org-mode-map
+      (kbd "<leader>i") 'org-display-inline-images
+      (kbd "<leader>I") 'org-remove-inline-images
+      (kbd "<leader>m") 'org-latex-preview
       (kbd "<leader>a") 'org-agenda-file-to-front
       (kbd "<leader>r") 'org-remove-file
       (kbd "<leader>c") 'org-ctrl-c-ctrl-c
@@ -880,6 +834,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>RET") 'org-open-at-point
       (kbd "<leader>t") 'org-shiftright
       (kbd "<leader>T") 'org-shiftleft
+      (kbd "<leader>bi") 'org-insert-structure-template
       (kbd "<leader>be") 'org-edit-src-code
       (kbd "<leader>bs") (evil-define-command evil-split-org-strucutre-template ()
                            (let ((point (point)) start-line end-line)
@@ -902,111 +857,97 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
-  (pkg which-key
-    :diminish which-key-mode
-    :config (which-key-mode))
+  (pkg which-key :require t)
+  (diminish 'which-key-mode)
+  (which-key-mode)
 #+end_src
 * Completion
 ** Minibuffer
 *** Completions
 #+begin_src emacs-lisp
-  (pkg selectrum
-    :after (evil)
-    :config
-    (evil-define-key '(insert normal) selectrum-minibuffer-map
-      (kbd "M-RET") 'selectrum-submit-exact-input
-      (kbd "M-TAB") 'selectrum-insert-current-candidate
-      (kbd "TAB") 'selectrum-next-candidate
-      (kbd "<backtab>") 'selectrum-previous-candidate)
-    (selectrum-mode))
+  (pkg selectrum :require t)
+  (selectrum-mode)
+  (evil-define-key '(insert normal) selectrum-minibuffer-map
+    (kbd "M-RET") 'selectrum-submit-exact-input
+    (kbd "M-TAB") 'selectrum-insert-current-candidate
+    (kbd "TAB") 'selectrum-next-candidate
+    (kbd "<backtab>") 'selectrum-previous-candidate)
 #+end_src
 *** Descriptions in Margins
 #+begin_src emacs-lisp
-  (pkg marginalia
-    :init
-    (marginalia-mode))
+  (pkg marginalia :require t)
+  (marginalia-mode)
 #+end_src
 ** Buffer
 *** Completions
 #+begin_src emacs-lisp
-  (pkg company
-    :diminish company-mode
-    :after (evil evil-collection)
-    :init
-    (setq company-idle-delay 0
-          company-minimum-prefix-length 1
-          company-selection-wrap-around t)
-    :config
-    (add-hook 'company-mode-hook 'company-tng-mode)
-    (evil-define-key 'insert company-mode-map
-      (kbd "TAB") 'company-complete)
-    (evil-define-key nil company-active-map
-      (kbd "<tab>") (interactive-chain 'company-complete-common 'company-select-next)
-      (kbd "TAB") 'company-select-next
-      (kbd "<backtab>") 'company-select-previous
-      (kbd "M-TAB") 'company-complete-common
-      (kbd "M-q") (interactive-chain 'company-select-first 'company-select-previous)
-      (kbd "<next>") 'company-next-page
-      (kbd "<prior>") 'company-previous-page
-      ;;Avoid conflicting keybinds 
-      (kbd "<return>") nil
-      (kbd "RET") nil
-      (kbd "M-p"))
-    (global-company-mode))
+  (pkg company :require t)
+  (diminish 'company-mode)
+  (setq company-idle-delay 0
+        company-minimum-prefix-length 1
+        company-selection-wrap-around t)
+
+  (add-hook 'company-mode-hook 'company-tng-mode)
+  (evil-define-key 'insert company-mode-map
+    (kbd "TAB") 'company-complete)
+  (evil-define-key nil company-active-map
+    (kbd "<tab>") (interactive-chain 'company-complete-common 'company-select-next)
+    (kbd "TAB") 'company-select-next
+    (kbd "<backtab>") 'company-select-previous
+    (kbd "M-TAB") 'company-complete-common
+    (kbd "M-q") (interactive-chain 'company-select-first 'company-select-previous)
+    (kbd "<next>") 'company-next-page
+    (kbd "<prior>") 'company-previous-page
+    ;;Avoid conflicting keybinds
+    (kbd "<return>") nil
+    (kbd "RET") nil
+    (kbd "M-p"))
+  (global-company-mode)
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
-  (pkg-github company-box "jack-faller/company-box" ; use my fix for tng-mode docstrings
-    :defer t
-    :after (company all-the-icons)
-    :diminish company-box-mode
-    :preface
-    (add-hook 'company-tng-mode-hook 'company-box-mode)
-    :config
-    (setq company-box-doc-delay 0.13
-          company-box-icons-all-the-icons
-          `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :face 'all-the-icons-purple))
-            (Text . ,(all-the-icons-material "text_fields" :height 0.8 :face 'all-the-icons-green))
-            (Method . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-            (Function . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-            (Constructor . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-            (Field . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-            (Variable . ,(all-the-icons-material "adjust" :height 0.8 :face 'all-the-icons-blue))
-            (Class . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
-            (Interface . ,(all-the-icons-material "settings_input_component" :height 0.8 :face 'all-the-icons-red))
-            (Module . ,(all-the-icons-material "view_module" :height 0.8 :face 'all-the-icons-red))
-            (Property . ,(all-the-icons-material "settings" :height 0.8 :face 'all-the-icons-red))
-            (Unit . ,(all-the-icons-material "straighten" :height 0.8 :face 'all-the-icons-red))
-            (Value . ,(all-the-icons-material "filter_1" :height 0.8 :face 'all-the-icons-red))
-            (Enum . ,(all-the-icons-material "plus_one" :height 0.8 :face 'all-the-icons-red))
-            (Keyword . ,(all-the-icons-material "filter_center_focus" :height 0.8 :face 'all-the-icons-red))
-            (Snippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-red))
-            (Color . ,(all-the-icons-material "color_lens" :height 0.8 :face 'all-the-icons-red))
-            (File . ,(all-the-icons-material "insert_drive_file" :height 0.8 :face 'all-the-icons-red))
-            (Reference . ,(all-the-icons-material "collections_bookmark" :height 0.8 :face 'all-the-icons-red))
-            (Folder . ,(all-the-icons-material "folder" :height 0.8 :face 'all-the-icons-red))
-            (EnumMember . ,(all-the-icons-material "people" :height 0.8 :face 'all-the-icons-red))
-            (Constant . ,(all-the-icons-material "pause_circle_filled" :height 0.8 :face 'all-the-icons-red))
-            (Struct . ,(all-the-icons-material "streetview" :height 0.8 :face 'all-the-icons-red))
-            (Event . ,(all-the-icons-material "event" :height 0.8 :face 'all-the-icons-red))
-            (Operator . ,(all-the-icons-material "control_point" :height 0.8 :face 'all-the-icons-red))
-            (TypeParameter . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
-            ;; (Template   . ,(company-box-icons-image "Template.png"))))
-            (Yasnippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-green))
-            (ElispFunction . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-            (ElispVariable . ,(all-the-icons-material "check_circle" :height 0.8 :face 'all-the-icons-blue))
-            (ElispFeature . ,(all-the-icons-material "stars" :height 0.8 :face 'all-the-icons-orange))
-            (ElispFace . ,(all-the-icons-material "format_paint" :height 0.8 :face 'all-the-icons-pink)))
-          company-box-icons-alist 'company-box-icons-all-the-icons))
+  (pkg company-box :require t :github "jack-faller/company-box") ; use my fix for tng-mode docstrings
+  (add-hook 'company-tng-mode-hook 'company-box-mode)
+  (setq company-box-doc-delay 0.13
+        company-box-icons-all-the-icons
+        `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :face 'all-the-icons-purple))
+          (Text . ,(all-the-icons-material "text_fields" :height 0.8 :face 'all-the-icons-green))
+          (Method . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
+          (Function . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
+          (Constructor . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
+          (Field . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
+          (Variable . ,(all-the-icons-material "adjust" :height 0.8 :face 'all-the-icons-blue))
+          (Class . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
+          (Interface . ,(all-the-icons-material "settings_input_component" :height 0.8 :face 'all-the-icons-red))
+          (Module . ,(all-the-icons-material "view_module" :height 0.8 :face 'all-the-icons-red))
+          (Property . ,(all-the-icons-material "settings" :height 0.8 :face 'all-the-icons-red))
+          (Unit . ,(all-the-icons-material "straighten" :height 0.8 :face 'all-the-icons-red))
+          (Value . ,(all-the-icons-material "filter_1" :height 0.8 :face 'all-the-icons-red))
+          (Enum . ,(all-the-icons-material "plus_one" :height 0.8 :face 'all-the-icons-red))
+          (Keyword . ,(all-the-icons-material "filter_center_focus" :height 0.8 :face 'all-the-icons-red))
+          (Snippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-red))
+          (Color . ,(all-the-icons-material "color_lens" :height 0.8 :face 'all-the-icons-red))
+          (File . ,(all-the-icons-material "insert_drive_file" :height 0.8 :face 'all-the-icons-red))
+          (Reference . ,(all-the-icons-material "collections_bookmark" :height 0.8 :face 'all-the-icons-red))
+          (Folder . ,(all-the-icons-material "folder" :height 0.8 :face 'all-the-icons-red))
+          (EnumMember . ,(all-the-icons-material "people" :height 0.8 :face 'all-the-icons-red))
+          (Constant . ,(all-the-icons-material "pause_circle_filled" :height 0.8 :face 'all-the-icons-red))
+          (Struct . ,(all-the-icons-material "streetview" :height 0.8 :face 'all-the-icons-red))
+          (Event . ,(all-the-icons-material "event" :height 0.8 :face 'all-the-icons-red))
+          (Operator . ,(all-the-icons-material "control_point" :height 0.8 :face 'all-the-icons-red))
+          (TypeParameter . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
+          ;; (Template   . ,(company-box-icons-image "Template.png"))))
+          (Yasnippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-green))
+          (ElispFunction . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
+          (ElispVariable . ,(all-the-icons-material "check_circle" :height 0.8 :face 'all-the-icons-blue))
+          (ElispFeature . ,(all-the-icons-material "stars" :height 0.8 :face 'all-the-icons-orange))
+          (ElispFace . ,(all-the-icons-material "format_paint" :height 0.8 :face 'all-the-icons-pink)))
+        company-box-icons-alist 'company-box-icons-all-the-icons)
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
-  (pkg eldoc
-    :defer t
-    :ensure nil
-    :diminish eldoc-mode
-    :config
-    (setq eldoc-idle-delay 0))
+  (diminish 'eldoc-mode)
+  (setq eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
 *** Performance
@@ -1016,13 +957,11 @@ These variables are reccomended by =lsp-mode= to increase performance.
 #+end_src
 *** LSP-Mode
 #+begin_src emacs-lisp
-  (pkg lsp-mode
-    :defer t
-    :after (company flycheck)
-    :init
-    (setq lsp-eldoc-enable-hover nil
-          lsp-signature-render-documentation nil)
-    :config
+  (pkg lsp-mode)
+  (setq lsp-eldoc-enable-hover nil
+        lsp-signature-render-documentation nil)
+
+  (after-load lsp
     (add-hook 'lsp-mode-hook 'evil-normal-state)
     (evil-define-key 'normal lsp-mode-map
       (kbd "<leader>=") 'lsp-format-buffer
@@ -1042,125 +981,123 @@ These variables are reccomended by =lsp-mode= to increase performance.
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
-  (pkg lsp-ui
-    :defer t
-    :preface
-    (setq lsp-ui-doc-enable t
-          lsp-ui-doc-delay most-positive-fixnum
-          lsp-ui-doc-position 'top
-          lsp-ui-sideline-show-hover t
-          lsp-ui-sideline-show-symbol t
-          lsp-ui-sideline-show-diagnostics t
-          lsp-ui-sideline-show-code-actions t))
-
-
+  (pkg lsp-ui)
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-delay most-positive-fixnum
+        lsp-ui-doc-position 'top
+        lsp-ui-sideline-show-hover t
+        lsp-ui-sideline-show-symbol t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-code-actions t)
 #+end_src
 ** Completions history
 #+begin_src emacs-lisp
-  (pkg prescient
-    :config (prescient-persist-mode))
-  (pkg selectrum-prescient
-    :after (selectrum prescient)
-    :config (selectrum-prescient-mode))
-  (pkg company-prescient
-    :after (company prescient)
-    :config (company-prescient-mode))
+  (pkg prescient :require t)
+  (prescient-persist-mode)
+  (pkg selectrum-prescient :require t)
+  (selectrum-prescient-mode)
+  (pkg company-prescient :require t)
+  (company-prescient-mode)
 #+end_src
 * File Management
 ** File Tree
 #+begin_src emacs-lisp
-  (pkg treemacs
-    :defer t
-    :preface
-    (evil-define-key 'normal 'global
-      "gt" 'treemacs)
-    (pkg treemacs-evil
-      :after (treemacs evil))
-    (pkg treemacs-all-the-icons
-      :after (treemacs all-the-icons)
-      :config
-      (treemacs-load-theme 'all-the-icons))
-    (pkg treemacs-projectile
-      :after (treemacs projectile))
-    (pkg treemacs-icons-dired
-      :after (treemacs))
-    (pkg treemacs-magit
-      :after (treemacs magit)))
+  (pkg treemacs)
+  (pkg treemacs-evil)
+  (pkg treemacs-all-the-icons)
+  (pkg treemacs-projectile)
+  (pkg treemacs-icons-dired)
+  (pkg treemacs-magit)
+  (evil-define-key 'normal 'global
+    "gt" 'treemacs)
+  (after-load treemacs
+    (require 'treemacs-evil)
+    (require 'treemacs-all-the-icons)
+    (require 'treemacs-projectile)
+    (require 'treemacs-icons-dired)
+    (require 'treemacs-magit)
+    (treemacs-load-theme 'all-the-icons))
 #+end_src
 ** Projects
 #+begin_src emacs-lisp
-  (pkg projectile
-    :config
-    (projectile-mode)
-    (setq compilation-scroll-output t)
-    (evil-define-key 'normal 'global
-      (kbd "<global-leader>pd") 'projectile-edit-dir-locals
-      (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
-                                   (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
-		
-      (kbd "<global-leader>pf") 'projectile-find-file
-      (kbd "<global-leader>pF") 'projectile-find-file-in-known-projects
-      (kbd "<global-leader>ps") 'projectile-switch-project)
-    (evil-define-key '(insert normal) projectile-mode-map
-      (kbd "<f5>") 'projectile-run-project
-      (kbd "<f6>") 'projectile-compile-project
-      (kbd "<f7>") 'projectile-configure-project)
-    (dolist (map evil-collection-compile-maps)
-      (evil-define-key 'normal map
-        "q" (interactive-chain 'kill-compilation 'quit-window)))
-    (setq projectile-project-search-path '("~/code/")))
+  (pkg projectile :require t)
+  (projectile-mode)
+  (setq compilation-scroll-output t)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>pd") 'projectile-edit-dir-locals
+    (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
+                                 (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
+
+    (kbd "<global-leader>pf") 'projectile-find-file
+    (kbd "<global-leader>pF") 'projectile-find-file-in-known-projects
+    (kbd "<global-leader>ps") 'projectile-switch-project)
+  (evil-define-key '(insert normal) projectile-mode-map
+    (kbd "<f5>") 'projectile-run-project
+    (kbd "<f6>") 'projectile-compile-project
+    (kbd "<f7>") 'projectile-configure-project)
+  (dolist (map evil-collection-compile-maps)
+    (evil-define-key 'normal map
+      "q" (interactive-chain 'kill-compilation 'quit-window)))
+  (setq projectile-project-search-path '("~/code/"))
 #+end_src
 * Error Reporting with Fly-*
 ** Spellcheck
 #+begin_src emacs-lisp
-  (pkg flyspell
-    :preface
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-    (add-hook 'text-mode-hook 'flyspell-mode)
-    :init
-    (defvar dict "en_GB"
-      "Dictionary to use.")
-    (setq flyspell-issue-message-flag nil
-          ispell-local-dictionary "dict"
-          ispell-local-dictionary-alist
-          `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
-    (cond
-     ((executable-find "hunspell")
-      (setq ispell-program-name "hunspell")
-      (when (boundp 'ispell-hunspell-dictionary-alist)
-        (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
-     ((executable-find "aspell")
-      (setq ispell-program-name "aspell"
-            ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
-                                "--run-together" "--run-together-limit=16"))))
-    :config
-    (evil-define-key 'normal flyspell-mode-map
-      "[s" 'evil-prev-flyspell-error
-      "]s" 'evil-next-flyspell-error))
+  (pkg flyspell :require t)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (defvar dict "en_GB"
+    "Dictionary to use.")
+  (setq flyspell-issue-message-flag nil
+        ispell-local-dictionary "dict"
+        ispell-local-dictionary-alist
+        `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
+  (cond
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")
+    (when (boundp 'ispell-hunspell-dictionary-alist)
+      (setq ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+   ((executable-find "aspell")
+    (setq ispell-program-name "aspell"
+          ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
+                              "--run-together" "--run-together-limit=16"))))
+  (evil-define-key 'normal flyspell-mode-map
+    "[s" 'evil-prev-flyspell-error
+    "]s" 'evil-next-flyspell-error)
 #+end_src
 ** Error Check
 #+begin_src emacs-lisp
-  (pkg flycheck
-    :defer t
-    :preface
-    (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
-    :config
-    (evil-define-key 'normal flycheck-mode-map
-      (kbd "<leader>e") 'list-flycheck-errors
-      "]]" 'flycheck-next-error
-      "[[" 'flycheck-previous-error)
-    (global-flycheck-mode))
+  (pkg flycheck :require t)
+  (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
+  (evil-define-key 'normal flycheck-mode-map
+    (kbd "<leader>e") 'list-flycheck-errors
+    "]]" 'flycheck-next-error
+    "[[" 'flycheck-previous-error)
+  (global-flycheck-mode)
 #+end_src
 * Magit
 #+begin_src emacs-lisp
-  (pkg magit
-    :after (evil-collection)
-    :defer t
-    :preface
-    (evil-define-key 'normal 'global
-      (kbd "<global-leader>m") 'magit)
-    (evil-define-key 'normal magit-mode-map
-      (kbd "M-h") 'magit-section-up
-      (kbd "M-j") 'magit-section-forward-sibling
-      (kbd "M-k") 'magit-section-backward-sibling))
+  (pkg magit)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>m") 'magit)
+  (evil-define-key 'normal magit-mode-map
+    (kbd "M-h") 'magit-section-up
+    (kbd "M-j") 'magit-section-forward-sibling
+    (kbd "M-k") 'magit-section-backward-sibling)
+#+end_src
+* Tree-Sitter
+#+begin_src emacs-lisp
+  (pkg tree-sitter-langs :require t)
+  (pkg tree-sitter :require t)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook 'tree-sitter-hl-mode)
+
+  (pkg tree-edit)
+  (pkg evil-tree-edit)
+#+end_src  
+
+
+* Allow Things to be deferred to the end of the file through config feature.
+#+begin_src emacs-lisp
+  (provide 'config)
 #+end_src
