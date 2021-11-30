@@ -412,10 +412,20 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (diminish 'evil-collection-unimpaired-mode)
   (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
   (evil-collection-init)
+
+  ;; fix cc in minibuffer, it inserts a newline if the final line is a newline
+  ;; TODO report this to evil-collection, I think it comes from the
+  ;; function deleting up to a new line then inserting a new one to adjust
+  (evil-define-operator evil-change-minibuffer-fix
+    (beg end type register yank-handler delete-func)
+    (interactive "<R><x><y>")
+    (let ((at-end (= end (point-max))))
+      (evil-change beg end type register yank-handler delete-func)
+      (if (and at-end (not (= (point) (point-max)))) (delete-char 1))))
+
   (dolist (i evil-collection-minibuffer-maps)
     (evil-define-key 'normal (eval i)
-      ;; TODO see if this was breaking C in mini-buffer, maybe fix with advice
-      ;; "cc" (lambda () (interactive) (evil-change (line-beginning-position) (line-end-position)))
+      "c" 'evil-change-minibuffer-fix
       "j" 'previous-complete-history-element
       "k" 'next-complete-history-element))
 #+end_src
