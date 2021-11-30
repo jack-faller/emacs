@@ -135,33 +135,26 @@
 #+end_src
 ** Act On Line
 #+begin_src emacs-lisp
-  (defun act-on-line (f)
-    "Apply f to the current line, Ignoring leading indent."
-    (let* ((beg (line-beginning-position))
-           (end (line-end-position))
-           (line (buffer-substring-no-properties beg end))
-           (valid (string-match (rx (* space) (group (not space)))
-                                line))
-           (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
-                                  0)))
-           (text (buffer-substring-no-properties text-start end)))
-      (if (not valid) (error "No text on line.")
-        (funcall f text))))
-
-  (defun replace-this-line (f)
-    "act-on-line but replace the text with the result of f."
-    (let* ((beg (line-beginning-position))
-           (end (line-end-position))
-           (line (buffer-substring-no-properties beg end))
-           (valid (string-match (rx (* space) (group (not space)))
-                                line))
-           (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
-                                  0)))
-           (text (buffer-substring-no-properties text-start end)))
-      (if (not valid) (error "No text on line.")
-        (kill-region text-start end)
-        (setf (point) text-start)
-        (insert (funcall f text)))))
+  (defun act-on-line (a &optional b)
+    "Either (f) or ('replace f), to simply return the result of calling
+  f on the current line ignoring leading space, or to replace the text
+  with the result."
+    (let ((f (if b b a))
+          (replace (eq a 'replace)))
+      (let* ((beg (line-beginning-position))
+             (end (line-end-position))
+             (line (buffer-substring-no-properties beg end))
+             (valid (string-match (rx (* space) (group (not space)))
+                                  line))
+             (text-start (+ beg (or (string-match (rx (not space) (* any)) line)
+                                    0)))
+             (text (buffer-substring-no-properties text-start end)))
+        (cond
+         ((not valid) (error "No text on line."))
+         (replace (kill-region text-start end)
+                  (setf (point) text-start)
+                  (insert (funcall f text)))
+         (t (funcall f text))))))
 #+end_src
 ** Frame Kill Buffers
 #+begin_src emacs-lisp
@@ -491,7 +484,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (defun print-text-on-line ()
     "Apply mode-print-formatter to the text on the current line."
     (interactive)
-    (replace-this-line mode-print-formatter))
+    (act-on-line 'replace mode-print-formatter))
 
   (evil-define-key 'normal 'global
     (kbd "gp") 'print-text-on-line)
