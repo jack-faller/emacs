@@ -970,7 +970,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (setf lsp-eldoc-enable-hover nil
         lsp-signature-render-documentation nil)
 
-  (after-load lsp
+  (after-load lsp-mode
     (add-hook 'lsp-mode-hook 'evil-normal-state)
     (evil-define-key 'normal lsp-mode-map
       (kbd "<leader>=") 'lsp-format-buffer
