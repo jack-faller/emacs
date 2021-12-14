@@ -595,7 +595,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       (kbd "<leader>I") (surround-paren-insert targets-a-lispyville-list end)
       (kbd "<leader>s") 'lispy-split
       (kbd "<leader>j") 'lispy-join
-      (kbd "<leader>r") 'lispy-raise
+      (kbd "<leader>r") 'lispy-raise-sexp
       (kbd "<leader>R") 'lispyville-raise-list
       (kbd "<leader>h") (evil-define-command lispyville-insert-at-beginnging-of-list (count)
                           (interactive "<c>")
