@@ -645,8 +645,9 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (add-hook 'geiser-mode-hook 'run-geiser)
   (setf geiser-mode-start-repl-p t)
 
+  (pkg geiser-guile)
   (after-load geiser
-    (pkg geiser-guile)
+    (require 'geiser-guile)
     (evil-define-key 'normal geiser-mode-map
       (kbd "<insert>") 'geiser-mode-switch-to-repl))
 #+end_src
