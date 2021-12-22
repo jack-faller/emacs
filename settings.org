@@ -428,6 +428,10 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       "c" 'evil-change-minibuffer-fix
       "j" 'previous-complete-history-element
       "k" 'next-complete-history-element))
+
+  (pkg evil-owl :require t)
+  (setq evil-owl-max-string-length 500)
+  (evil-owl-mode)
 #+end_src
 * Global Binds
 #+begin_src emacs-lisp
