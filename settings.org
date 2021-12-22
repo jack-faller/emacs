@@ -393,29 +393,43 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
   (evil-define-key 'motion 'global
     (kbd "M-e") 'evil-backward-word-end
     (kbd "M-E") 'evil-backward-WORD-end)
-
+#+end_src
+** Evil Collection
+#+begin_src emacs-lisp
+  (setf evil-collection-setup-minibuffer t)
+  (pkg evil-collection :require t)
+  (diminish 'evil-collection-unimpaired-mode)
+  (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
+  (evil-collection-init)
+#+end_src
+** Evil Extensions
+*** Surround
+Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
+#+begin_src emacs-lisp
   (pkg evil-surround :require t)
   (setq-default evil-surround-pairs-alist
                 (append '((?“ . ("“" . "”"))
                           (?” . ("“ " . " ”")))
                         evil-surround-pairs-alist))
   (global-evil-surround-mode 1)
-
+#+end_src
+*** Text Objects
+#+begin_src emacs-lisp
   (pkg targets :require t :github "noctuid/targets.el")
   (targets-setup t)
-
+#+end_src
+*** Swap Text Using =gx=
+#+begin_src emacs-lisp
   (pkg evil-exchange :require t)
   (evil-exchange-install)
-
-  (setf evil-collection-setup-minibuffer t)
-  (pkg evil-collection :require t)
-  (diminish 'evil-collection-unimpaired-mode)
-  (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
-  (evil-collection-init)
-
-  ;; fix cc in minibuffer, it inserts a newline if the final line is a newline
-  ;; TODO report this to evil-collection, I think it comes from the
-  ;; function deleting up to a new line then inserting a new one to adjust
+#+end_src
+*** Fix =cc= in Minibuffer
+  It inserts a newline if the final line after it has run is empty,
+  removing completions.
+  TODO report this to evil-collection, I think it comes from the
+  function deleting up to a new line then inserting a new one to
+  adjust.
+#+begin_src emacs-lisp
   (evil-define-operator evil-change-minibuffer-fix
     (beg end type register yank-handler delete-func)
     (interactive "<R><x><y>")
@@ -428,7 +442,9 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
       "c" 'evil-change-minibuffer-fix
       "j" 'previous-complete-history-element
       "k" 'next-complete-history-element))
-
+#+end_src
+*** Register Previews
+#+begin_src emacs-lisp
   (pkg evil-owl :require t)
   (setq evil-owl-max-string-length 500)
   (evil-owl-mode)
