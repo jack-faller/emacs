@@ -499,7 +499,6 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                                   (profiler-stop)
                                   (profiler-report)))
     "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
-    "gb" 'switch-to-buffer
     "gB" 'ibuffer)
 
   (evil-define-text-object evil-whole-buffer (count &optional beg end type)
@@ -1033,6 +1032,22 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg company-prescient :require t)
   (company-prescient-mode)
 #+end_src
+*** Consult
+#+begin_src emacs-lisp
+  (pkg consult)
+  (pkg consult-flycheck)
+  (evil-collection-consult-setup)
+
+  (evil-define-key 'normal flycheck-mode-map
+    (kbd "<leader>e") 'consult-flycheck)
+  (evil-define-key 'normal 'global
+    (kbd "gb") 'consult-buffer
+    (kbd "g'") 'evil-collection-consult-mark
+    (kbd "<global-leader>l") 'consult-line
+    (kbd "<global-leader>l") 'consult-line-multi
+    (kbd "<global-leader>i") 'consult-imenu
+    (kbd "<global-leader>I") 'consult-imenu-multi)
+#+end_src
 * File Management
 ** File Tree
 #+begin_src emacs-lisp
@@ -1104,7 +1119,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg flycheck :require t)
   (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
   (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>e") 'list-flycheck-errors
+    (kbd "<leader>E") 'list-flycheck-errors
     "]]" 'flycheck-next-error
     "[[" 'flycheck-previous-error)
   (global-flycheck-mode)
