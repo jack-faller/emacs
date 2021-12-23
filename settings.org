@@ -730,7 +730,8 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
         org-hide-emphasis-markers t
         org-pretty-entities t
         org-pretty-entities-include-sub-superscripts t
-        org-startup-with-latex-preview t)
+        org-startup-with-latex-preview t
+        org-imenu-depth 4)
 
   (after-load org
     ;; Increase size of latex previews.
