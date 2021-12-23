@@ -1033,7 +1033,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg company-prescient :require t)
   (company-prescient-mode)
 #+end_src
-*** Consult
+** Consult
 #+begin_src emacs-lisp
   (pkg consult)
   (pkg consult-flycheck)
@@ -1048,6 +1048,15 @@ These variables are reccomended by =lsp-mode= to increase performance.
     (kbd "<global-leader>l") 'consult-line-multi
     (kbd "<global-leader>i") 'consult-imenu
     (kbd "<global-leader>I") 'consult-imenu-multi)
+#+end_src
+** Embark
+#+begin_src emacs-lisp
+  (pkg embark)
+  (pkg embark-consult)
+  (evil-define-key '(normal insert) 'global
+    (kbd "<global-leader>e") 'embark-act
+    (kbd "<global-leader>E") 'embark-dwim)
+  (after-load consult (require 'embark-consult))
 #+end_src
 * File Management
 ** File Tree
