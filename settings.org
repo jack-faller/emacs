@@ -1139,10 +1139,14 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg magit)
   (evil-define-key 'normal 'global
     (kbd "<global-leader>m") 'magit)
-  (evil-define-key 'normal magit-mode-map
+  (evil-define-key '(visual normal) magit-mode-map
     (kbd "M-h") 'magit-section-up
     (kbd "M-j") 'magit-section-forward-sibling
-    (kbd "M-k") 'magit-section-backward-sibling)
+    (kbd "M-k") 'magit-section-backward-sibling
+    (kbd "\\") nil
+    (kbd "SPC") nil)
+  (evil-define-key nil magit-mode-map
+    (kbd "SPC") nil)
 #+end_src
 * Tree-Sitter
 #+begin_src emacs-lisp
