@@ -1099,32 +1099,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
       "q" (interactive-chain 'kill-compilation 'quit-window)))
   (setf projectile-project-search-path '("~/code/"))
 #+end_src
-* Error Reporting with Fly-*
-** Spellcheck
-#+begin_src emacs-lisp
-  (pkg flyspell :require t)
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (add-hook 'text-mode-hook 'flyspell-mode)
-  (defvar dict "en_GB"
-    "Dictionary to use.")
-  (setf flyspell-issue-message-flag nil
-        ispell-local-dictionary "dict"
-        ispell-local-dictionary-alist
-        `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
-  (cond
-   ((executable-find "hunspell")
-    (setf ispell-program-name "hunspell")
-    (when (boundp 'ispell-hunspell-dictionary-alist)
-      (setf ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
-   ((executable-find "aspell")
-    (setf ispell-program-name "aspell"
-          ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
-                              "--run-together" "--run-together-limit=16"))))
-  (evil-define-key 'normal flyspell-mode-map
-    "[s" 'evil-prev-flyspell-error
-    "]s" 'evil-next-flyspell-error)
-#+end_src
-** Error Check
+* Flycheck
 #+begin_src emacs-lisp
   (pkg flycheck :require t)
   (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
@@ -1159,6 +1134,36 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg evil-tree-edit)
 #+end_src  
 
+* Spellcheck
+** Flyspell
+#+begin_src emacs-lisp
+  (pkg flyspell :require t)
+  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (defvar dict "en_GB"
+    "Dictionary to use.")
+  (setf flyspell-issue-message-flag nil
+        ispell-local-dictionary "dict"
+        ispell-local-dictionary-alist
+        `(("dict" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" ,dict) nil utf-8)))
+  (cond
+   ((executable-find "hunspell")
+    (setf ispell-program-name "hunspell")
+    (when (boundp 'ispell-hunspell-dictionary-alist)
+      (setf ispell-hunspell-dictionary-alist ispell-local-dictionary-alist)))
+   ((executable-find "aspell")
+    (setf ispell-program-name "aspell"
+          ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
+                              "--run-together" "--run-together-limit=16"))))
+  (evil-define-key 'normal flyspell-mode-map
+    "[s" 'evil-prev-flyspell-error
+    "]s" 'evil-next-flyspell-error)
+#+end_src
+** Grammarly
+#+begin_src emacs-lisp
+  ;; todo, maybe re-write this myself
+  ;; (pkg flycheck-grammarly)
+#+end_src
 
 * Allow Things to be deferred to the end of the file through config feature.
 #+begin_src emacs-lisp
