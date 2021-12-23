@@ -322,6 +322,22 @@
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   (setf highlight-indent-guides-method 'character)
 #+end_src
+** Line Wrap
+#+begin_src emacs-lisp
+  (pkg visual-fill-column)
+  (defun toggle-word-wrap (&optional arg)
+    (interactive)
+    (let ((status (or arg (if visual-line-mode 0 1))))
+      (visual-line-mode status)
+      (visual-fill-column-mode 0)))
+  (defun toggle-word-wrap-at-col (&optional arg)
+    (interactive)
+    (let ((status (or arg (if visual-fill-column-mode 0 1))))
+      (visual-line-mode status)
+      (visual-fill-column-mode status)))
+  (setq-default fill-column 80)
+  (global-visual-line-mode)
+#+end_src
 * Count Keys
 #+begin_src emacs-lisp
   (pkg keyfreq :require t)
@@ -493,6 +509,8 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
     (kbd "<global-leader>b") 'bookmark-jump
     (kbd "<global-leader>B") 'bookmark-set
     (kbd "<global-leader>td") 'toggle-debug-on-error
+    (kbd "<global-leader>tw") 'toggle-word-wrap
+    (kbd "<global-leader>tW") 'toggle-word-wrap-at-col
     (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
                                 (if (not (profiler-running-p))
                                     (profiler-start 'cpu+mem)
