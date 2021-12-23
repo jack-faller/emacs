@@ -312,6 +312,7 @@
 ** Turn ^L (Line Feed) Into a Horizontal Line
 #+begin_src emacs-lisp
   (pkg page-break-lines :require t)
+  (diminish 'page-break-lines-mode)
   (global-page-break-lines-mode)
 #+end_src
 ** Indent Guides
@@ -447,6 +448,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+begin_src emacs-lisp
   (pkg evil-owl :require t)
   (setq evil-owl-max-string-length 500)
+  (diminish 'evil-owl-mode)
   (evil-owl-mode)
 #+end_src
 * Global Binds
@@ -719,6 +721,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                                (require 'org-roam)
                                (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
                                (goto-char (point-max))))
+  (diminish 'org-indent-mode)
   (hook 'org-mode-hook
     (org-indent-mode)
     (setq-local electric-pair-inhibit-predicate
@@ -937,6 +940,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 *** Prettify
 #+begin_src emacs-lisp
   (pkg company-box :require t :github "jack-faller/company-box") ; use my fix for tng-mode docstrings
+  (diminish 'company-box-mode)
   (add-hook 'company-tng-mode-hook 'company-box-mode)
   (setf company-box-doc-delay 0.13
         company-box-icons-all-the-icons
