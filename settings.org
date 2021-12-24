@@ -330,6 +330,7 @@
     (let ((status (or arg (if visual-line-mode 0 1))))
       (visual-line-mode status)
       (visual-fill-column-mode 0)))
+  (setf visual-fill-column-mode nil)
   (defun toggle-word-wrap-at-col (&optional arg)
     (interactive)
     (let ((status (or arg (if visual-fill-column-mode 0 1))))
