@@ -254,7 +254,7 @@
 #+end_src
 * Tab Width
 #+begin_src emacs-lisp
-  (setq-default tab-width 2)
+  (setq-default tab-width 4)
   (setq-default evil-shift-width tab-width)
   (setf backward-delete-char-untabify-method 'all)
   (defmacro set-tab-width-in (mode tab-width)
@@ -574,6 +574,11 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+begin_src emacs-lisp
   (pkg lispy)
   (diminish 'lispy-mode)
+  (set-tab-width-in lisp-mode 2)
+  (set-tab-width-in emacs-lisp-mode 2)
+  (set-tab-width-in common-lisp-mode 2)
+  (set-tab-width-in clojure-mode 2)
+  (set-tab-width-in scheme-mode 2)
 
   (pkg lispyville)
   (diminish 'lispyville-mode)
