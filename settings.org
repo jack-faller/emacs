@@ -502,6 +502,19 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
            (interactive "<R><x>")
            (evil-delete beg end type ?_)
            (insert (evil-get-register (or register ?\")))))
+
+  (evil-define-key 'motion 'global
+    "]]" (evil-define-motion evil-next-close-bracket (count)
+           "Go to [count] next unmatched ')'."
+           :type exclusive
+           (forward-char)
+           (evil-up-paren ?\[ ?\] (or count 1))
+           (backward-char))
+    "[[" (evil-define-motion evil-previous-open-bracket (count)
+           "Go to [count] previous unmatched '{'."
+           :type exclusive
+           (evil-up-paren ?\[ ?\] (- (or count 1)))))
+
   (evil-define-key 'normal 'global
     "U" 'evil-redo
     (kbd "<escape>") 'evil-ex-nohighlight
@@ -1130,9 +1143,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (evil-declare-not-repeat 'flycheck-next-error)
   (evil-declare-not-repeat 'flycheck-previous-error)
   (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>E") 'list-flycheck-errors
-    "]]" 'flycheck-next-error
-    "[[" 'flycheck-previous-error)
+    (kbd "<leader>E") 'list-flycheck-errors)
   (global-flycheck-mode)
 #+end_src
 * Magit
