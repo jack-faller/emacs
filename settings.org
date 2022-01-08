@@ -1155,6 +1155,8 @@ These variables are reccomended by =lsp-mode= to increase performance.
     (kbd "M-h") 'magit-section-up
     (kbd "M-j") 'magit-section-forward-sibling
     (kbd "M-k") 'magit-section-backward-sibling
+    (kbd "C-j") nil
+    (kbd "C-k") nil
     (kbd "\\") nil
     (kbd "SPC") nil)
   (evil-define-key nil magit-mode-map
