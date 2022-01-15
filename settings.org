@@ -1031,24 +1031,22 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg lsp-mode)
   (setf lsp-eldoc-enable-hover nil
         lsp-signature-render-documentation nil)
-
-  (after-load lsp-mode
-    (add-hook 'lsp-mode-hook 'evil-normal-state)
-    (evil-define-key 'normal lsp-mode-map
-      (kbd "<leader>=") 'lsp-format-buffer
-      (kbd "<leader>gd") 'lsp-find-definition
-      (kbd "<leader>gD") 'lsp-find-declaration
-      (kbd "<leader>gr") 'lsp-find-references
-      (kbd "<leader>gi") 'lsp-find-implementation
-      (kbd "<leader>gt") 'lsp-find-type-definition
-      ;; (kbd "<leader>gh") 'hierarchy
-      (kbd "<leader>ga") 'xref-find-apropos
-      (kbd "<leader>o") 'lsp-organize-imports
-      (kbd "<leader>r") 'lsp-rename
-      (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
-      (kbd "<leader>a") 'lsp-execute-code-action
-      "K" 'lsp-ui-doc-show
-      "gK" 'lsp-describe-thing-at-point))
+  (add-hook 'lsp-mode-hook 'evil-normal-state)
+  (evil-define-key 'normal lsp-mode-map
+    (kbd "<leader>=") 'lsp-format-buffer
+    (kbd "<leader>gd") 'lsp-find-definition
+    (kbd "<leader>gD") 'lsp-find-declaration
+    (kbd "<leader>gr") 'lsp-find-references
+    (kbd "<leader>gi") 'lsp-find-implementation
+    (kbd "<leader>gt") 'lsp-find-type-definition
+    ;; (kbd "<leader>gh") 'hierarchy
+    (kbd "<leader>ga") 'xref-find-apropos
+    (kbd "<leader>o") 'lsp-organize-imports
+    (kbd "<leader>r") 'lsp-rename
+    (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
+    (kbd "<leader>a") 'lsp-execute-code-action
+    "K" 'lsp-ui-doc-show
+    "gK" 'lsp-describe-thing-at-point)
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
