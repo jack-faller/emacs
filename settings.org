@@ -252,6 +252,14 @@
     "M-;" 'insert "<leader>"
     "M-:" 'insert "<global-leader>")
 #+end_src
+** Universal Argument
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "M-u") 'universal-argument)
+  (define-key universal-argument-map (kbd "C-u") nil)
+  (define-key universal-argument-map (kbd "M-u") 'universal-argument-more)
+  (with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "M-u") nil))
+#+end_src
 * Tab Width
 #+begin_src emacs-lisp
   (setq-default tab-width 4)
