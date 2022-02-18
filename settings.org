@@ -274,7 +274,7 @@
 ** Font
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist '(font . "Iosevka 9"))
-  (set-face-attribute 'default t :font "Iosevka")
+  (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 9.2))
 #+end_src
 ** Icons
 #+begin_src emacs-lisp
@@ -534,6 +534,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
     (kbd "<global-leader>tw") 'toggle-word-wrap
     (kbd "<global-leader>tW") 'toggle-word-wrap-at-col
     (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
+                                (require 'profiler)
                                 (if (not (profiler-running-p))
                                     (profiler-start 'cpu+mem)
                                   (profiler-stop)
@@ -807,7 +808,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 
   (setf context-start/end-tags '("start/stop" "b/e"))
   (setf context-tags (nconc
-                         '("paragraph" "component" "TABLE" "TABLEhead" "TABLEbody" "TC" "TR")
+                         '("paragraph" "itemize" "component" "TABLE" "TABLEhead" "TABLEbody" "TC" "TR")
                          (cl-loop for i in '("section" "subject")
                                   nconc (mapcar
                                          (lambda (subs) (concat subs i))
@@ -854,6 +855,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
      '(org-level-5 ((t (:inherit outline-5 :height 1.1)))))
     ;; Don't make text bigger after 8 levels.
     (setf org-cycle-level-faces nil))
+  (setf org-fontify-done-headline nil)
 #+end_src
 *** Hide Org Markup
 #+begin_src emacs-lisp
@@ -1145,6 +1147,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
 #+begin_src emacs-lisp
   (pkg consult)
   (pkg consult-flycheck)
+  (pkg consult-projectile)
   (evil-collection-consult-setup)
 
   (evil-define-key 'normal flycheck-mode-map
@@ -1155,7 +1158,8 @@ These variables are reccomended by =lsp-mode= to increase performance.
     (kbd "<global-leader>l") 'consult-line
     (kbd "<global-leader>l") 'consult-line-multi
     (kbd "<global-leader>i") 'consult-imenu
-    (kbd "<global-leader>I") 'consult-imenu-multi)
+    (kbd "<global-leader>I") 'consult-imenu-multi
+    (kbd "<global-leader>P") 'consult-projectile)
 #+end_src
 ** Embark
 #+begin_src emacs-lisp
