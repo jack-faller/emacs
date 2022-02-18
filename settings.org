@@ -583,6 +583,9 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (pkg centered-cursor-mode :require t)
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
+  (push #'evil-insert-state-p ccm-inhibit-centering-when)
+  (push 'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
+  (push 'abort-recursive-edit ccm-ignored-commands)
 #+end_src
 * Restart
 #+begin_src emacs-lisp
