@@ -256,10 +256,10 @@
   (setq-default tab-width 4)
   (setq-default evil-shift-width tab-width)
   (setf backward-delete-char-untabify-method 'all)
+  (setq-default electric-indent-inhibit t)
+  (setf backward-delete-char-untabify-method 'hungry)
   (defmacro set-tab-width-in (mode tab-width)
-    `(setq-mode-local ,mode
-                      tab-width ,tab-width
-                      evil-shift-width ,tab-width))
+    `(setq-mode-local ,mode evil-shift-width ,tab-width))
 #+end_src
 * Prettify Emacs
 ** Font
