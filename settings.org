@@ -798,12 +798,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
       (save-excursion (newline))))
 
   (setf context-start/end-tags '("start/stop" "b/e"))
-  (setf context-tags (nconc
-                         '("paragraph" "itemize" "component" "TABLE" "TABLEhead" "TABLEbody" "TC" "TR")
-                         (cl-loop for i in '("section" "subject")
-                                  nconc (mapcar
-                                         (lambda (subs) (concat subs i))
-                                         '("" "sub" "subsub" "subsubsub" "subsubsubsub")))))
+  (setf context-tags '("paragraph" "itemize" "component" "TABLE" "TABLEhead" "TABLEbody" "TC" "TR" "TH"))
 
   (evil-define-key 'insert tex-mode-map
     (kbd "<leader>t") #'context-insert-tag-pair)
