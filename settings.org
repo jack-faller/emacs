@@ -476,11 +476,22 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (diminish 'evil-owl-mode)
   (evil-owl-mode)
 #+end_src
-
-* Misc Variables
-** Make Sentences Work Properly
+* Misc Settings
+** Variables
 #+begin_src emacs-lisp
-  (setf sentence-end-double-space nil)
+  (setf
+   ;; Sentence regexes only allow double spaced sentences, stop that.
+   sentence-end-double-space nil
+   ;; Add more detail to describe-* functions.
+   sentence-end-double-space nil
+   ;; This also highlights a lot of non-error things.
+   next-error-message-highlight t
+   ;; Ensure documentation is loaded from autoloaded functions
+   help-enable-symbol-autoload t)
+#+end_src
+** Right Click Menu
+#+begin_src emacs-lisp
+  (context-menu-mode)
 #+end_src
 * Global Binds
 #+begin_src emacs-lisp
@@ -590,6 +601,15 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
     (kbd "C-w S-RET") #'split-left
     (kbd "C-w DEL") #'split-down
     (kbd "C-w S-DEL") #'split-up)
+#+end_src
+* Help Mode
+#+begin_src emacs-lisp
+  (evil-define-key 'normal help-mode-map
+    (kbd "s") #'help-view-source
+    (kbd "i") #'help-goto-info
+    (kbd "c") #'help-customize
+    (kbd "<space>") nil
+    (kbd "SPC") nil)
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
