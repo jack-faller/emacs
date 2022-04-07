@@ -460,6 +460,12 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (diminish 'evil-owl-mode)
   (evil-owl-mode)
 #+end_src
+
+* Misc Variables
+** Make Sentences Work Properly
+#+begin_src emacs-lisp
+  (setf sentence-end-double-space nil)
+#+end_src
 * Global Binds
 #+begin_src emacs-lisp
   (evil-define-key '(normal visual) 'global
