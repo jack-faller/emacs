@@ -267,6 +267,23 @@
   (add-to-list 'default-frame-alist '(font . "Iosevka 9"))
   (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 9.2))
 #+end_src
+** Ligatures
+#+begin_src emacs-lisp
+  (pkg ligature :require t :github "mickeynp/ligature.el")
+  (ligature-set-ligatures 'prog-mode
+                          '("<---" "<--" "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->" "<---->" "<!--" "<!---"
+                            "<==" "<===" "=>" "=>>" "==>" "===>" "<=>" "<==>" "<===>" "<====>"
+                            ;; "<~~" "<~" "~>" "~~>" ;; these look funny
+                            ">>=" "=<<"
+                            "::" ":::"
+                            "==" "!=" "===" "!==" "<=" ">="
+                            ":=" ":-" ":+"
+                            "<|" "<|>" "|>"
+                            "+:" "-:" "=:"
+                            "<******>" "<*****>" "<****>" "<***>" "<**>" "<*" "<*>" "*>"
+                            "++" "+++"))
+  (global-ligature-mode 1)
+#+end_src
 ** Icons
 #+begin_src emacs-lisp
   (pkg all-the-icons)
