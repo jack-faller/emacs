@@ -692,6 +692,26 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+begin_src emacs-lisp
   (pkg sly)
   (setf inferior-lisp-program "/usr/bin/sbcl")
+  (cl-macrolet ((defmacroexpand (name fn)
+                  `(evil-define-operator ,name (beg end)
+                     :move-point nil
+                     (with-save-point
+                       (setf (point) beg)
+                       (,fn)))))
+    (defmacroexpand sly-evil-macroexpand-all sly-macroexpand-all)
+    (defmacroexpand sly-evil-macroexpand-1 sly-macroexpand-1)
+    (defmacroexpand sly-evil-macroexpand-all-inplace sly-macroexpand-all-inplace)
+    (defmacroexpand sly-evil-macroexpand-1-inplace sly-macroexpand-1-inplace))
+  (evil-define-key '(normal visual) sly-mode-map
+    "=" (evil-define-operator evil-lisp-indent-region (beg end)
+          :type line
+          :move-point nil
+          (lisp-indent-region beg end))
+    (kbd "<leader>me") #'sly-evil-macroexpand-all
+    (kbd "<leader>m1") #'sly-evil-macroexpand-1
+    (kbd "<leader>Me") #'sly-evil-macroexpand-all-inplace
+    (kbd "<leader>M1") #'sly-evil-macroexpand-1-inplace
+    (kbd "<leader>fu") #'sly-undefine-function)
 #+end_src
 ** Rust
 #+begin_src emacs-lisp
