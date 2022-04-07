@@ -291,7 +291,6 @@
    (unless all-the-icons-fonts-installed?
      (all-the-icons-install-fonts t)))
 #+end_src
-
 ** Line Numbers
 #+begin_src emacs-lisp
   (pkg display-line-numbers :require t)
@@ -585,6 +584,12 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                     (split-window-vertically)
                     (evil-window-down 1))
     (kbd "M-S-DEL") (evil-define-command split-up () (split-window-vertically)))
+
+  (evil-define-key 'normal 'global
+    (kbd "C-w RET") #'split-right
+    (kbd "C-w S-RET") #'split-left
+    (kbd "C-w DEL") #'split-down
+    (kbd "C-w S-DEL") #'split-up)
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
@@ -1158,7 +1163,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
     (kbd "gb") 'consult-buffer
     (kbd "g'") 'evil-collection-consult-mark
     (kbd "<global-leader>l") 'consult-line
-    (kbd "<global-leader>l") 'consult-line-multi
+    (kbd "<global-leader>L") 'consult-line-multi
     (kbd "<global-leader>i") 'consult-imenu
     (kbd "<global-leader>I") 'consult-imenu-multi
     (kbd "<global-leader>P") 'consult-projectile)
