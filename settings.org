@@ -62,7 +62,7 @@
 ** Concat Symbols
 #+begin_src emacs-lisp
   (defun symcat (&rest symbols)
-    (intern (apply 'concat (mapcar 'symbol-name symbols))))
+    (intern (apply #'concat (mapcar #'symbol-name symbols))))
 #+end_src
 ** Automatically Create Files
 #+begin_src emacs-lisp
@@ -245,9 +245,9 @@
 #+end_src
 ** Universal Argument
 #+begin_src emacs-lisp
-  (define-key global-map (kbd "M-u") 'universal-argument)
+  (define-key global-map (kbd "M-u") #'universal-argument)
   (define-key universal-argument-map (kbd "C-u") nil)
-  (define-key universal-argument-map (kbd "M-u") 'universal-argument-more)
+  (define-key universal-argument-map (kbd "M-u") #'universal-argument-more)
   (with-eval-after-load 'evil-maps
     (define-key evil-motion-state-map (kbd "M-u") nil))
 #+end_src
@@ -414,11 +414,11 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
           (python-mode python-shell-send-region)
           (julia-mode julia-shell-run-region)))
   (evil-define-key 'normal evil-ex-search-keymap
-    "j" 'next-line-or-history-element
-    "k" 'previous-line-or-history-element)
+    "j" #'next-line-or-history-element
+    "k" #'previous-line-or-history-element)
   (evil-define-key 'motion 'global
-    (kbd "M-e") 'evil-backward-word-end
-    (kbd "M-E") 'evil-backward-WORD-end)
+    (kbd "M-e") #'evil-backward-word-end
+    (kbd "M-E") #'evil-backward-WORD-end)
 #+end_src
 ** Evil Collection
 #+begin_src emacs-lisp
@@ -465,9 +465,9 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 
   (dolist (i evil-collection-minibuffer-maps)
     (evil-define-key 'normal (eval i)
-      "c" 'evil-change-minibuffer-fix
-      "j" 'previous-complete-history-element
-      "k" 'next-complete-history-element))
+      "c" #'evil-change-minibuffer-fix
+      "j" #'previous-complete-history-element
+      "k" #'next-complete-history-element))
 #+end_src
 *** Register Previews
 #+begin_src emacs-lisp
@@ -485,7 +485,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 * Global Binds
 #+begin_src emacs-lisp
   (evil-define-key '(normal visual) 'global
-    (kbd "<leader>;") 'execute-extended-command
+    (kbd "<leader>;") #'execute-extended-command
     "ge" (evil-define-operator evil-eval (beg end)
            "Evaluate code."
            :move-point nil
@@ -530,27 +530,27 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
            (evil-up-paren ?\[ ?\] (- (or count 1)))))
 
   (evil-define-key 'normal 'global
-    "U" 'evil-redo
-    (kbd "<escape>") 'evil-ex-nohighlight
+    (kbd "U") #'evil-redo
+    (kbd "<escape>") #'evil-ex-nohighlight
     (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
                                (switch-to-buffer "*scratch*"))
-    (kbd "<global-leader>b") 'bookmark-jump
-    (kbd "<global-leader>B") 'bookmark-set
-    (kbd "<global-leader>td") 'toggle-debug-on-error
-    (kbd "<global-leader>tw") 'toggle-word-wrap
-    (kbd "<global-leader>tW") 'toggle-word-wrap-at-col
+    (kbd "<global-leader>b") #'bookmark-jump
+    (kbd "<global-leader>B") #'bookmark-set
+    (kbd "<global-leader>td") #'toggle-debug-on-error
+    (kbd "<global-leader>tw") #'toggle-word-wrap
+    (kbd "<global-leader>tW") #'toggle-word-wrap-at-col
     (kbd "<global-leader>tp") (evil-define-command toggle-profiler ()
                                 (require 'profiler)
                                 (if (not (profiler-running-p))
                                     (profiler-start 'cpu+mem)
                                   (profiler-stop)
                                   (profiler-report)))
-    "S" (evil-define-command evil-file-substitute () (evil-ex "%s/"))
-    "gB" 'ibuffer)
+    (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
+    (kbd "gB") #'ibuffer)
 
   (evil-define-text-object evil-whole-buffer (count &optional beg end type)
     "Whole buffer." (list (point-min) (point-max)))
-  (define-key evil-outer-text-objects-map "g" 'evil-whole-buffer)
+  (define-key evil-outer-text-objects-map (kbd "g") #'evil-whole-buffer)
 #+end_src
 ** Printing
 #+begin_src emacs-lisp
@@ -560,21 +560,21 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (defun print-text-on-line ()
     "Apply mode-print-formatter to the text on the current line."
     (interactive)
-    (act-on-line 'replace mode-print-formatter))
+    (act-on-line #'replace mode-print-formatter))
 
   (evil-define-key 'normal 'global
-    (kbd "gp") 'print-text-on-line)
+    (kbd "gp") #'print-text-on-line)
   (evil-define-key 'insert 'global
-    (kbd "M-p") 'print-text-on-line)
+    (kbd "M-p") #'print-text-on-line)
 #+end_src
 ** Window / Buffer
 #+begin_src emacs-lisp
   (evil-define-key nil 'global
-    (kbd "C-h") 'evil-window-left
-    (kbd "C-j") 'evil-window-down
-    (kbd "C-k") 'evil-window-up
-    (kbd "C-l") 'evil-window-right
-    (kbd "C-q") 'image-kill-buffer
+    (kbd "C-h") #'evil-window-left
+    (kbd "C-j") #'evil-window-down
+    (kbd "C-k") #'evil-window-up
+    (kbd "C-l") #'evil-window-right
+    (kbd "C-q") #'image-kill-buffer
     (kbd "C-S-q") (evil-define-command save-&-kill-buffer () (save-buffer) (kill-buffer))
     (kbd "M-RET") (evil-define-command split-right ()
                     (split-window-horizontally)
@@ -597,14 +597,14 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
   (push #'evil-insert-state-p ccm-inhibit-centering-when)
-  (push 'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
-  (push 'abort-recursive-edit ccm-ignored-commands)
+  (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
+  (push #'abort-recursive-edit ccm-ignored-commands)
 #+end_src
 * Restart
 #+begin_src emacs-lisp
   (pkg restart-emacs)
   (evil-define-key 'global 'normal
-    (kbd "<global-leader>rr") 'restart-emacs)
+    (kbd "<global-leader>rr") #'restart-emacs)
 #+end_src
 * Languages / File-types
 ** Lisp
@@ -619,9 +619,9 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 
   (pkg lispyville)
   (diminish 'lispyville-mode)
-  (add-hook 'emacs-lisp-mode-hook 'lispyville-mode)
-  (add-hook 'common-lisp-mode-hook 'lispyville-mode)
-  (add-hook 'lisp-mode-hook 'lispyville-mode)
+  (add-hook 'emacs-lisp-mode-hook #'lispyville-mode)
+  (add-hook 'common-lisp-mode-hook #'lispyville-mode)
+  (add-hook 'lisp-mode-hook #'lispyville-mode)
   (hook 'lispyville-mode-hook
     (cl-macrolet ((defto (name key)
                     `(targets-define-to ,name ',name nil object :bind t
@@ -662,31 +662,31 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                (evil-insert 1)))))
                                           ; TODO make these work for visual
     (evil-define-key '(visual normal) lispyville-mode-map
-      (kbd "<leader>(") 'lispy-wrap-round
-      (kbd "<leader>{") 'lispy-wrap-braces
-      (kbd "<leader>[") 'lispy-wrap-brackets
-      (kbd "<leader>)") 'lispyville-wrap-with-round
-      (kbd "<leader>}") 'lispyville-wrap-with-braces
-      (kbd "<leader>]") 'lispyville-wrap-with-brackets
-      (kbd "M-j") 'lispyville-drag-forward
-      (kbd "M-k") 'lispyville-drag-backward
-      (kbd "<leader>@") 'lispy-splice
+      (kbd "<leader>(") #'lispy-wrap-round
+      (kbd "<leader>{") #'lispy-wrap-braces
+      (kbd "<leader>[") #'lispy-wrap-brackets
+      (kbd "<leader>)") #'lispyville-wrap-with-round
+      (kbd "<leader>}") #'lispyville-wrap-with-braces
+      (kbd "<leader>]") #'lispyville-wrap-with-brackets
+      (kbd "M-j") #'lispyville-drag-forward
+      (kbd "M-k") #'lispyville-drag-backward
+      (kbd "<leader>@") #'lispy-splice
       (kbd "<leader>w") (surround-paren-insert targets-inner-lispyville-sexp start)
       (kbd "<leader>W") (surround-paren-insert targets-inner-lispyville-sexp end)
       (kbd "<leader>i") (surround-paren-insert targets-a-lispyville-list start)
       (kbd "<leader>I") (surround-paren-insert targets-a-lispyville-list end)
-      (kbd "<leader>s") 'lispy-split
-      (kbd "<leader>j") 'lispy-join
-      (kbd "<leader>r") 'lispy-raise-sexp
-      (kbd "<leader>R") 'lispyville-raise-list
+      (kbd "<leader>s") #'lispy-split
+      (kbd "<leader>j") #'lispy-join
+      (kbd "<leader>r") #'lispy-raise-sexp
+      (kbd "<leader>R") #'lispyville-raise-list
       (kbd "<leader>h") (evil-define-command lispyville-insert-at-beginnging-of-list (count)
                           (interactive "<c>")
                           (lispyville-insert-at-beginning-of-list count)
                           (insert " ")
                           (backward-char))
-      (kbd "<leader>l") 'lispyville-insert-at-end-of-list
-      (kbd "<leader>o") 'lispyville-open-below-list
-      (kbd "<leader>O") 'lispyville-open-above-list))
+      (kbd "<leader>l") #'lispyville-insert-at-end-of-list
+      (kbd "<leader>o") #'lispyville-open-below-list
+      (kbd "<leader>O") #'lispyville-open-above-list))
 #+end_src
 ** Common Lisp
 #+begin_src emacs-lisp
@@ -727,23 +727,23 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 ** Scheme
 #+begin_src emacs-lisp
   (pkg geiser)
-  (add-hook 'scheme-mode-hook 'geiser-mode)
-  (add-hook 'scheme-mode-hook 'lispyville-mode)
-  (add-hook 'geiser-mode-hook 'run-geiser)
+  (add-hook 'scheme-mode-hook #'geiser-mode)
+  (add-hook 'scheme-mode-hook #'lispyville-mode)
+  (add-hook 'geiser-mode-hook #'run-geiser)
   (setf geiser-mode-start-repl-p t)
 
   (pkg geiser-guile)
   (after-load geiser
     (require 'geiser-guile)
     (evil-define-key 'normal geiser-mode-map
-      (kbd "<insert>") 'geiser-mode-switch-to-repl))
+      (kbd "<insert>") #'geiser-mode-switch-to-repl))
 #+end_src
 ** Anki External Editor
 #+begin_src emacs-lisp
   (defvar anki-mode-hook nil)
   (defvar anki-mode-map (make-sparse-keymap))
   (evil-define-key 'normal anki-mode-map
-    (kbd "<leader>m") 'org-latex-preview)
+    (kbd "<leader>m") #'org-latex-preview)
   (targets-define-to latex-math-block "\\$(" ")\\$"
                      pair :bind t :keys "m" :hooks anki-mode-hook)
   (targets-define-to latex-MATH-block "\\$( " " )\\$"
@@ -883,11 +883,11 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
         org-roam-directory (file-truename "~/org"))
   (defun org-roam-get-unlinked-node-ids ()
     "Get the IDs of nodes with no backlinks."
-    (cl-set-difference (mapcar 'car (org-roam-db-query [:select id :from nodes]))
-                       (mapcar 'car (org-roam-db-query [:select dest :from links]))
+    (cl-set-difference (mapcar #'car (org-roam-db-query [:select id :from nodes]))
+                       (mapcar #'car (org-roam-db-query [:select dest :from links]))
                        :test 'string=))
   (evil-define-key 'normal 'global
-    (kbd "<global-leader>nf") 'org-roam-node-find
+    (kbd "<global-leader>nf") #'org-roam-node-find
     (kbd "<global-leader>nu")
     (evil-define-command org-roam-unlinked-node-find (&optional other-window initial-input filter-fn)
       "Find nodes with no backlinks."
@@ -939,17 +939,17 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                    (copy-tree org-roam-capture-templates)))
 
     (evil-define-key 'insert org-mode-map
-      (kbd "<leader>n") 'org-roam-node-insert)
+      (kbd "<leader>n") #'org-roam-node-insert)
     (evil-define-key 'normal org-mode-map
-      (kbd "<leader>nb") 'org-roam-buffer-toggle
-      (kbd "<leader>ng") 'org-roam-graph
-      (kbd "<leader>ni") 'org-roam-node-insert
-      (kbd "<leader>nc") 'org-roam-capture
-      (kbd "<leader>nn") 'org-id-get-create
-      (kbd "<leader>nt") 'org-roam-tag-add
-      (kbd "<leader>nT") 'org-roam-tag-remove
-      (kbd "<leader>nd") 'org-roam-dailies-capture-today
-      (kbd "<leader>na") 'org-roam-alias-add)
+      (kbd "<leader>nb") #'org-roam-buffer-toggle
+      (kbd "<leader>ng") #'org-roam-graph
+      (kbd "<leader>ni") #'org-roam-node-insert
+      (kbd "<leader>nc") #'org-roam-capture
+      (kbd "<leader>nn") #'org-id-get-create
+      (kbd "<leader>nt") #'org-roam-tag-add
+      (kbd "<leader>nT") #'org-roam-tag-remove
+      (kbd "<leader>nd") #'org-roam-dailies-capture-today
+      (kbd "<leader>na") #'org-roam-alias-add)
     (org-roam-db-autosync-mode)
     ;; If using org-roam-protocol
     ;; (require 'org-roam-protocol)
@@ -963,31 +963,31 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
     (require 'evil-org-agenda)
     (evil-org-agenda-set-keys)
     (evil-define-key 'insert org-mode-map
-      (kbd "<leader>b") 'org-insert-structure-template
-      (kbd "M-h") 'org-metaleft
-      (kbd "M-l") 'org-metaright)
+      (kbd "<leader>b") #'org-insert-structure-template
+      (kbd "M-h") #'org-metaleft
+      (kbd "M-l") #'org-metaright)
     (evil-define-key 'normal org-capture-mode-map
-      (leader "k") 'org-capture-kill
-      (leader "c") 'org-capture-finalize)
+      (leader "k") #'org-capture-kill
+      (leader "c") #'org-capture-finalize)
     (evil-define-key '(normal insert) org-mode-map
-      (kbd "<leader>.") 'org-time-stamp
-      (kbd "<leader>l") 'org-insert-link)
+      (kbd "<leader>.") #'org-time-stamp
+      (kbd "<leader>l") #'org-insert-link)
     (evil-define-key 'normal org-mode-map
-      (kbd "<leader>i") 'org-display-inline-images
-      (kbd "<leader>I") 'org-remove-inline-images
-      (kbd "<leader>m") 'org-latex-preview
-      (kbd "<leader>a") 'org-agenda-file-to-front
-      (kbd "<leader>r") 'org-remove-file
-      (kbd "<leader>c") 'org-ctrl-c-ctrl-c
-      (kbd "<leader>l") 'org-insert-link
-      (kbd "<leader>d") 'org-deadline
-      (kbd "<leader>s") 'org-schedule
-      (kbd "<leader>p") 'org-priority
-      (kbd "<leader>RET") 'org-open-at-point
-      (kbd "<leader>t") 'org-shiftright
-      (kbd "<leader>T") 'org-shiftleft
-      (kbd "<leader>bi") 'org-insert-structure-template
-      (kbd "<leader>be") 'org-edit-src-code
+      (kbd "<leader>i") #'org-display-inline-images
+      (kbd "<leader>I") #'org-remove-inline-images
+      (kbd "<leader>m") #'org-latex-preview
+      (kbd "<leader>a") #'org-agenda-file-to-front
+      (kbd "<leader>r") #'org-remove-file
+      (kbd "<leader>c") #'org-ctrl-c-ctrl-c
+      (kbd "<leader>l") #'org-insert-link
+      (kbd "<leader>d") #'org-deadline
+      (kbd "<leader>s") #'org-schedule
+      (kbd "<leader>p") #'org-priority
+      (kbd "<leader>RET") #'org-open-at-point
+      (kbd "<leader>t") #'org-shiftright
+      (kbd "<leader>T") #'org-shiftleft
+      (kbd "<leader>bi") #'org-insert-structure-template
+      (kbd "<leader>be") #'org-edit-src-code
       (kbd "<leader>bs") (evil-define-command evil-split-org-strucutre-template ()
                            (let ((point (point)) start-line end-line)
                              (cl-destructuring-bind ((_ end _) (start _ _)) `(,(evil-org-inner-element)
@@ -1005,7 +1005,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                            :type line
                            (goto-char beg)
                            (set-mark end)
-                           (call-interactively 'org-insert-structure-template))))
+                           (call-interactively #'org-insert-structure-template))))
 #+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
@@ -1020,10 +1020,10 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (pkg selectrum :require t)
   (selectrum-mode)
   (evil-define-key '(insert normal) selectrum-minibuffer-map
-    (kbd "M-RET") 'selectrum-submit-exact-input
-    (kbd "M-TAB") 'selectrum-insert-current-candidate
-    (kbd "TAB") 'selectrum-next-candidate
-    (kbd "<backtab>") 'selectrum-previous-candidate)
+    (kbd "M-RET") #'selectrum-submit-exact-input
+    (kbd "M-TAB") #'selectrum-insert-current-candidate
+    (kbd "TAB") #'selectrum-next-candidate
+    (kbd "<backtab>") #'selectrum-previous-candidate)
 #+end_src
 *** Descriptions in Margins
 #+begin_src emacs-lisp
@@ -1041,15 +1041,15 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 
   (add-hook 'company-mode-hook 'company-tng-mode)
   (evil-define-key 'insert company-mode-map
-    (kbd "TAB") 'company-complete)
+    (kbd "TAB") #'company-complete)
   (evil-define-key nil company-active-map
-    (kbd "<tab>") (interactive-chain 'company-complete-common 'company-select-next)
-    (kbd "TAB") 'company-select-next
-    (kbd "<backtab>") 'company-select-previous
-    (kbd "M-TAB") 'company-complete-common
-    (kbd "M-q") (interactive-chain 'company-select-first 'company-select-previous)
-    (kbd "<next>") 'company-next-page
-    (kbd "<prior>") 'company-previous-page
+    (kbd "<tab>") (interactive-chain #'company-complete-common #'company-select-next)
+    (kbd "TAB") #'company-select-next
+    (kbd "<backtab>") #'company-select-previous
+    (kbd "M-TAB") #'company-complete-common
+    (kbd "M-q") (interactive-chain #'company-select-first #'company-select-previous)
+    (kbd "<next>") #'company-next-page
+    (kbd "<prior>") #'company-previous-page
     ;;Avoid conflicting keybinds
     (kbd "<return>") nil
     (kbd "RET") nil
@@ -1060,7 +1060,7 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+begin_src emacs-lisp
   (pkg company-box :require t :github "jack-faller/company-box") ; use my fix for tng-mode docstrings
   (diminish 'company-box-mode)
-  (add-hook 'company-tng-mode-hook 'company-box-mode)
+  (add-hook 'company-tng-mode-hook #'company-box-mode)
   (setf company-box-doc-delay 0.13
         company-box-icons-all-the-icons
         `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :face 'all-the-icons-purple))
@@ -1115,20 +1115,20 @@ These variables are reccomended by =lsp-mode= to increase performance.
         lsp-signature-render-documentation nil)
   (add-hook 'lsp-mode-hook 'evil-normal-state)
   (evil-define-key 'normal lsp-mode-map
-    (kbd "<leader>=") 'lsp-format-buffer
-    (kbd "<leader>gd") 'lsp-find-definition
-    (kbd "<leader>gD") 'lsp-find-declaration
-    (kbd "<leader>gr") 'lsp-find-references
-    (kbd "<leader>gi") 'lsp-find-implementation
-    (kbd "<leader>gt") 'lsp-find-type-definition
-    ;; (kbd "<leader>gh") 'hierarchy
-    (kbd "<leader>ga") 'xref-find-apropos
-    (kbd "<leader>o") 'lsp-organize-imports
-    (kbd "<leader>r") 'lsp-rename
+    (kbd "<leader>=") #'lsp-format-buffer
+    (kbd "<leader>gd") #'lsp-find-definition
+    (kbd "<leader>gD") #'lsp-find-declaration
+    (kbd "<leader>gr") #'lsp-find-references
+    (kbd "<leader>gi") #'lsp-find-implementation
+    (kbd "<leader>gt") #'lsp-find-type-definition
+    ;; (kbd "<leader>gh") #'hierarchy
+    (kbd "<leader>ga") #'xref-find-apropos
+    (kbd "<leader>o") #'lsp-organize-imports
+    (kbd "<leader>r") #'lsp-rename
     (kbd "<leader>te") (interactive-toggle lsp-eldoc-enable-hover)
-    (kbd "<leader>a") 'lsp-execute-code-action
-    "K" 'lsp-ui-doc-show
-    "gK" 'lsp-describe-thing-at-point)
+    (kbd "<leader>a") #'lsp-execute-code-action
+    (kbd "K") #'lsp-ui-doc-show
+    (kbd "gK") #'lsp-describe-thing-at-point)
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
@@ -1158,23 +1158,23 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (evil-collection-consult-setup)
 
   (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>e") 'consult-flycheck)
+    (kbd "<leader>e") #'consult-flycheck)
   (evil-define-key 'normal 'global
-    (kbd "gb") 'consult-buffer
-    (kbd "g'") 'evil-collection-consult-mark
-    (kbd "<global-leader>l") 'consult-line
-    (kbd "<global-leader>L") 'consult-line-multi
-    (kbd "<global-leader>i") 'consult-imenu
-    (kbd "<global-leader>I") 'consult-imenu-multi
-    (kbd "<global-leader>P") 'consult-projectile)
+    (kbd "gb") #'consult-buffer
+    (kbd "g'") #'evil-collection-consult-mark
+    (kbd "<global-leader>l") #'consult-line
+    (kbd "<global-leader>L") #'consult-line-multi
+    (kbd "<global-leader>i") #'consult-imenu
+    (kbd "<global-leader>I") #'consult-imenu-multi
+    (kbd "<global-leader>P") #'consult-projectile)
 #+end_src
 ** Embark
 #+begin_src emacs-lisp
   (pkg embark)
   (pkg embark-consult)
   (evil-define-key '(normal insert) 'global
-    (kbd "<global-leader>e") 'embark-act
-    (kbd "<global-leader>E") 'embark-dwim)
+    (kbd "<global-leader>e") #'embark-act
+    (kbd "<global-leader>E") #'embark-dwim)
   (after-load consult (require 'embark-consult))
 #+end_src
 * File Management
@@ -1187,7 +1187,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg treemacs-icons-dired)
   (pkg treemacs-magit)
   (evil-define-key 'normal 'global
-    "gt" 'treemacs)
+    (kbd "gt") #'treemacs)
   (after-load treemacs
     (require 'treemacs-evil)
     (require 'treemacs-all-the-icons)
@@ -1202,41 +1202,41 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (projectile-mode)
   (setf compilation-scroll-output t)
   (evil-define-key 'normal 'global
-    (kbd "<global-leader>pd") 'projectile-edit-dir-locals
+    (kbd "<global-leader>pd") #'projectile-edit-dir-locals
     (kbd "<global-leader>pDp") (evil-define-command add-dir-locals-project-commands ()
                                  (insert "((nil . ((projectile-project-run-cmd . \"\")\n				 (projectile-project-configure-cmd . \"\") \n				 (projectile-project-compilation-cmd . \"\"))))"))
 
-    (kbd "<global-leader>pf") 'projectile-find-file
-    (kbd "<global-leader>pF") 'projectile-find-file-in-known-projects
-    (kbd "<global-leader>ps") 'projectile-switch-project)
+    (kbd "<global-leader>pf") #'projectile-find-file
+    (kbd "<global-leader>pF") #'projectile-find-file-in-known-projects
+    (kbd "<global-leader>ps") #'projectile-switch-project)
   (evil-define-key '(insert normal) projectile-mode-map
-    (kbd "<f5>") 'projectile-run-project
-    (kbd "<f6>") 'projectile-compile-project
-    (kbd "<f7>") 'projectile-configure-project)
+    (kbd "<f5>") #'projectile-run-project
+    (kbd "<f6>") #'projectile-compile-project
+    (kbd "<f7>") #'projectile-configure-project)
   (dolist (map evil-collection-compile-maps)
     (evil-define-key 'normal map
-      "q" (interactive-chain 'kill-compilation 'quit-window)))
+      (kbd "q") (interactive-chain #'kill-compilation #'quit-window)))
   (setf projectile-project-search-path '("~/code/"))
 #+end_src
 * Flycheck
 #+begin_src emacs-lisp
   (pkg flycheck :require t)
   (hook 'emacs-lisp-mode-hook (flycheck-mode -1))
-  (evil-declare-not-repeat 'flycheck-next-error)
-  (evil-declare-not-repeat 'flycheck-previous-error)
+  (evil-declare-not-repeat #'flycheck-next-error)
+  (evil-declare-not-repeat #'flycheck-previous-error)
   (evil-define-key 'normal flycheck-mode-map
-    (kbd "<leader>E") 'list-flycheck-errors)
+    (kbd "<leader>E") #'list-flycheck-errors)
   (global-flycheck-mode)
 #+end_src
 * Magit
 #+begin_src emacs-lisp
   (pkg magit)
   (evil-define-key 'normal 'global
-    (kbd "<global-leader>m") 'magit)
+    (kbd "<global-leader>m") #'magit)
   (evil-define-key '(visual normal) magit-mode-map
-    (kbd "M-h") 'magit-section-up
-    (kbd "M-j") 'magit-section-forward-sibling
-    (kbd "M-k") 'magit-section-backward-sibling
+    (kbd "M-h") #'magit-section-up
+    (kbd "M-j") #'magit-section-forward-sibling
+    (kbd "M-k") #'magit-section-backward-sibling
     (kbd "C-j") nil
     (kbd "C-k") nil
     (kbd "\\") nil
@@ -1249,7 +1249,7 @@ These variables are reccomended by =lsp-mode= to increase performance.
   (pkg tree-sitter-langs :require t)
   (pkg tree-sitter :require t)
   (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook 'tree-sitter-hl-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
   (pkg tree-edit)
   (pkg evil-tree-edit)
@@ -1259,8 +1259,8 @@ These variables are reccomended by =lsp-mode= to increase performance.
 ** Flyspell
 #+begin_src emacs-lisp
   (pkg flyspell :require t)
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+  (add-hook 'text-mode-hook #'flyspell-mode)
   (defvar dict "en_GB"
     "Dictionary to use.")
   (setf flyspell-issue-message-flag nil
@@ -1277,8 +1277,8 @@ These variables are reccomended by =lsp-mode= to increase performance.
           ispell-extra-args `("--sug-mode=ultra" ,(concat "--lang=" dict)
                               "--run-together" "--run-together-limit=16"))))
   (evil-define-key 'normal flyspell-mode-map
-    "[s" 'evil-prev-flyspell-error
-    "]s" 'evil-next-flyspell-error)
+    (kbd "[s") #'evil-prev-flyspell-error
+    (kbd "]s") #'evil-next-flyspell-error)
 #+end_src
 ** Grammarly
 #+begin_src emacs-lisp
