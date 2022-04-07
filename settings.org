@@ -314,13 +314,6 @@
   (diminish 'page-break-lines-mode)
   (global-page-break-lines-mode)
 #+end_src
-** Indent Guides
-#+begin_src emacs-lisp
-  (pkg highlight-indent-guides :require t)
-  (diminish 'highlight-indent-guides-mode)
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-  (setf highlight-indent-guides-method 'character)
-#+end_src
 ** Line Wrap
 #+begin_src emacs-lisp
   (pkg visual-fill-column)
