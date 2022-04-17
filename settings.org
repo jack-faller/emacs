@@ -544,7 +544,8 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
                                   (profiler-stop)
                                   (profiler-report)))
     (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
-    (kbd "gB") #'ibuffer)
+    (kbd "gB") #'ibuffer
+    (kbd "<global-leader>d") #'dired)
 
   (evil-define-text-object evil-whole-buffer (count &optional beg end type)
     "Whole buffer." (list (point-min) (point-max)))
