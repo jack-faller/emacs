@@ -449,27 +449,10 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (pkg evil-exchange :require t)
   (evil-exchange-install)
 #+end_src
-*** Fix =cc= in Minibuffer
-  It inserts a newline if the final line after it has run is empty,
-  removing completions.
-  TODO report this to evil-collection, I think it comes from the
-  function deleting up to and including a new line then inserting a new one to
-  adjust.
+*** History in Minibuffer
 #+begin_src emacs-lisp
-  (evil-define-operator evil-change-minibuffer-fix
-    (beg end type register yank-handler delete-func)
-    "A version of `evil-change' that won't insert a new line on buffers without one."
-    (interactive "<R><x><y>")
-    ;; If there was no new line before the change, there should be none after.
-    ;; Delete any new line that might have been inserted and ignore an error if
-    ;; one wasn't.
-    (let ((new-inserted (and (eq type 'line) (/= ?\n (char-before end)))))
-      (evil-change beg end type register yank-handler delete-func)
-      (when new-inserted (ignore-errors (delete-char 1)))))
-
   (dolist (i evil-collection-minibuffer-maps)
     (evil-define-key* 'normal (symbol-value i)
-      "c" #'evil-change-minibuffer-fix
       "j" #'previous-complete-history-element
       "k" #'next-complete-history-element))
 #+end_src
