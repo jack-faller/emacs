@@ -491,6 +491,13 @@ align with previews
     (kbd "<leader>U") #'ialign-update
     (kbd "<leader>?") #'ialign-show-help)
 #+end_src
+** Title Case
+#+begin_src emacs-lisp
+  (pkg titlecase)
+  (evil-define-operator evil-titlecase (beg end) "Make range title case." (titlecase-region beg end))
+  (evil-define-key '(normal visual) 'global
+    (kbd "g M-u") #'evil-titlecase)
+#+end_src
 * Misc Settings
 ** Variables
 #+begin_src emacs-lisp
