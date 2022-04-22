@@ -1279,6 +1279,52 @@ These variables are recommended by =lsp-mode= to increase performance.
     (kbd "<leader>E") #'list-flycheck-errors)
   (global-flycheck-mode)
 #+end_src
+* Pastebin Services
+#+begin_src emacs-lisp
+  (pkg webpaste)
+  (setq webpaste-provider-priority '("dpaste.org"))
+  (defun read-seconds-duration ()
+    "Read a duration in seconds."
+    (require 'org)
+    (-->
+     (parse-time-string (org-read-date))
+     (cl-mapcar (lambda (a b) (if (and a (/= a -1)) a b)) it (decode-time))
+     encode-time
+     (- (time-to-seconds it) (time-to-seconds))
+     round))
+  (defun get-webpaste-duration ()
+    (--> webpaste-providers-alist
+         (alist-get "dpaste.org" it nil nil 'equal)
+         (plist-get it :post-data)
+         (alist-get "expires" it nil nil 'equal)))
+  (defun set-webpaste-duration (seconds)
+    (setf (--> webpaste-providers-alist
+               (alist-get "dpaste.org" it nil nil 'equal)
+               (plist-get it :post-data)
+               (alist-get "expires" it nil nil 'equal))
+          seconds))
+
+  (after-load webpaste
+    (set-webpaste-duration "never"))
+
+  (defconst webpaste-durations
+    '(("one time" . "onetime")
+      ("never" . "never")
+      ("hour" . 3600)
+      ("week" . 604800)
+      ("month" . 2592000)))
+
+  (defun webpaste (arg)
+    "Paste the buffer or region if active. When ARG, prompt for a duration until expiration."
+    (interactive "P")
+    (let ((old-duration (get-webpaste-duration)))
+      (when arg
+        (-> (completing-read "Duration: " webpaste-durations)
+            (alist-get webpaste-durations nil nil #'string=)
+            set-webpaste-duration))
+      (call-interactively #'webpaste-paste-buffer-or-region)
+      (set-webpaste-duration old-duration)))
+#+end_src
 * Magit
 #+begin_src emacs-lisp
   (pkg magit)
