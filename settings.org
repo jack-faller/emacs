@@ -130,7 +130,7 @@
 #+begin_src emacs-lisp
   (defmacro interactive-toggle (var-name)
     "Define a toggle function for var-name and return it."
-    `(evil-define-command (symcat 'toggle- var-name)
+    `(evil-define-command ,(symcat 'toggle- var-name) ()
        (setf ,var-name (not ,var-name))))
 #+end_src
 ** Hook
