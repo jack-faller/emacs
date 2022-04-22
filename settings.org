@@ -516,6 +516,7 @@ align with previews
   (context-menu-mode)
 #+end_src
 * Global Binds
+** Misc
 #+begin_src emacs-lisp
   (evil-define-key '(normal visual) 'global
     (kbd "<leader>;") #'execute-extended-command
@@ -624,6 +625,11 @@ align with previews
     (kbd "C-w S-RET") #'split-left
     (kbd "C-w DEL") #'split-down
     (kbd "C-w S-DEL") #'split-up)
+#+end_src
+** Minibuffer
+#+begin_src emacs-lisp
+  (hook 'minibuffer-mode-hook
+    (push '(?g . ("\\(" . "\\)")) evil-surround-pairs-alist))
 #+end_src
 * Help Mode
 #+begin_src emacs-lisp
