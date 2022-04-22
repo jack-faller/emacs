@@ -643,12 +643,6 @@ align with previews
   (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
   (push #'abort-recursive-edit ccm-ignored-commands)
 #+end_src
-* Restart
-#+begin_src emacs-lisp
-  (pkg restart-emacs)
-  (evil-define-key 'global 'normal
-    (kbd "<global-leader>rr") #'restart-emacs)
-#+end_src
 * Languages / File-types
 ** Lisp
 #+begin_src emacs-lisp
