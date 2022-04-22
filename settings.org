@@ -354,7 +354,7 @@
   (keyfreq-autosave-mode 1)
   (setf keyfreq-excluded-commands '(self-insert-command))
 #+end_src
-* Vim Keys (Evil)
+* Editing
 ** Evil Requirements
 Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
@@ -462,6 +462,34 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
   (setq evil-owl-max-string-length 500)
   (diminish 'evil-owl-mode)
   (evil-owl-mode)
+#+end_src
+** Align
+Align multiple lines based on a regex.
+A version of M-x align with live previews.
+align with previews
+#+begin_src emacs-lisp
+  (pkg ialign)
+  (setf ialign-initial-repeat t)
+  (evil-define-key '(normal visual) 'global
+    (kbd "<global-leader>a") (evil-define-operator evil-ialign (beg end)
+                               "Call ialign on region."
+                               :type line
+                               (ialign beg end)))
+  (evil-define-key '(normal insert) ialign-minibuffer-keymap
+    (kbd "<leader>r") #'ialign-toggle-repeat
+    (kbd "<leader>t") #'ialign-toggle-tabs
+    (kbd "<leader>c") #'ialign-toggle-case-fold
+    (kbd "<leader>p") #'ialign-toggle-pcre-mode
+    (kbd "<leader>-") #'ialign-decrement-spacing
+    (kbd "<leader>+") #'ialign-increment-spacing
+    (kbd "<leader>=") #'ialign-increment-spacing
+    (kbd "<leader>[") #'ialign-decrement-group
+    (kbd "<leader>]") #'ialign-increment-group
+    (kbd "<leader>f") #'ialign-set-group
+    (kbd "<leader>s") #'ialign-set-spacing
+    (kbd "<leader>u") (interactive-toggle ialign-auto-update)
+    (kbd "<leader>U") #'ialign-update
+    (kbd "<leader>?") #'ialign-show-help)
 #+end_src
 * Misc Settings
 ** Variables
@@ -860,12 +888,6 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 ** Org
 *** Org-mode
 #+begin_src emacs-lisp
-  (evil-define-key 'normal 'global
-    (kbd "<global-leader>a") 'org-agenda
-    (kbd "<global-leader>A") (evil-define-command visit-roam-agenda ()
-                               (require 'org-roam)
-                               (org-roam-node-visit (org-roam-node-from-title-or-alias "Agenda"))
-                               (goto-char (point-max))))
   (diminish 'org-indent-mode)
   (hook 'org-mode-hook
     (org-indent-mode)
