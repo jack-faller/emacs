@@ -634,15 +634,6 @@ align with previews
   (hook 'minibuffer-mode-hook
     (push '(?g . ("\\(" . "\\)")) evil-surround-pairs-alist))
 #+end_src
-* Help Mode
-#+begin_src emacs-lisp
-  (evil-define-key 'normal help-mode-map
-    (kbd "s") #'help-view-source
-    (kbd "i") #'help-goto-info
-    (kbd "c") #'help-customize
-    (kbd "<space>") nil
-    (kbd "SPC") nil)
-#+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
   (pkg centered-cursor-mode :require t)
@@ -652,7 +643,7 @@ align with previews
   (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
   (push #'abort-recursive-edit ccm-ignored-commands)
 #+end_src
-* Languages / File-types
+* Major Modes
 ** Lisp
 #+begin_src emacs-lisp
   (pkg lispy)
@@ -1079,6 +1070,31 @@ align with previews
       (kbd "SPC") nil
       (kbd "<space>") nil))
 #+end_src
+** Magit
+#+begin_src emacs-lisp
+  (pkg magit)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>m") #'magit)
+  (evil-define-key '(visual normal) magit-mode-map
+    (kbd "M-h") #'magit-section-up
+    (kbd "M-j") #'magit-section-forward-sibling
+    (kbd "M-k") #'magit-section-backward-sibling
+    (kbd "C-j") nil
+    (kbd "C-k") nil
+    (kbd "\\") nil
+    (kbd "SPC") nil)
+  (evil-define-key nil magit-mode-map
+    (kbd "SPC") nil)
+#+end_src
+** Help Mode
+#+begin_src emacs-lisp
+  (evil-define-key 'normal help-mode-map
+    (kbd "s") #'help-view-source
+    (kbd "i") #'help-goto-info
+    (kbd "c") #'help-customize
+    (kbd "<space>") nil
+    (kbd "SPC") nil)
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key :require t)
@@ -1385,22 +1401,6 @@ These variables are recommended by =lsp-mode= to increase performance.
             set-webpaste-duration))
       (call-interactively #'webpaste-paste-buffer-or-region)
       (set-webpaste-duration old-duration)))
-#+end_src
-* Magit
-#+begin_src emacs-lisp
-  (pkg magit)
-  (evil-define-key 'normal 'global
-    (kbd "<global-leader>m") #'magit)
-  (evil-define-key '(visual normal) magit-mode-map
-    (kbd "M-h") #'magit-section-up
-    (kbd "M-j") #'magit-section-forward-sibling
-    (kbd "M-k") #'magit-section-backward-sibling
-    (kbd "C-j") nil
-    (kbd "C-k") nil
-    (kbd "\\") nil
-    (kbd "SPC") nil)
-  (evil-define-key nil magit-mode-map
-    (kbd "SPC") nil)
 #+end_src
 * Tree-Sitter
 #+begin_src emacs-lisp
