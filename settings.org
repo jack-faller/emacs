@@ -732,7 +732,7 @@ align with previews
   (cl-macrolet ((defmacroexpand (name fn)
                   `(evil-define-operator ,name (beg end)
                      :move-point nil
-                     (with-save-point
+                     (save-excursion
                        (setf (point) beg)
                        (,fn)))))
     (defmacroexpand sly-evil-macroexpand-all sly-macroexpand-all)
