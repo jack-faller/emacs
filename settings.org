@@ -138,7 +138,10 @@
   (defmacro hook (hook &rest body)
     "Run body after hook."
     (declare (indent 1))
-    `(add-hook ,hook (lambda () ,@body)))
+    `(let ((fn (lambda () ,@body)))
+       ,(if (listp (cadr hook))
+            `(dolist (i ,hook) (add-hook i fn))
+          `(add-hook ,hook fn))))
 #+end_src
 ** Mode Local
 #+begin_src emacs-lisp
