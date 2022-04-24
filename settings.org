@@ -1075,15 +1075,34 @@ align with previews
 #+end_src
 * Completion
 ** Minibuffer
-*** Completions
+*** Misc
 #+begin_src emacs-lisp
-  (pkg selectrum :require t)
-  (selectrum-mode)
-  (evil-define-key '(insert normal) selectrum-minibuffer-map
-    (kbd "M-RET") #'selectrum-submit-exact-input
-    (kbd "M-TAB") #'selectrum-insert-current-candidate
-    (kbd "TAB") #'selectrum-next-candidate
-    (kbd "<backtab>") #'selectrum-previous-candidate)
+  (savehist-mode)
+  (setf enable-recursive-minibuffers t)
+#+end_src
+*** Stop the Cursor from Going into the Prompt
+#+begin_src emacs-lisp
+  (setf minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+#+end_src
+*** Indicator for Multiple Completions
+#+begin_src emacs-lisp
+  (defun crm-indicator (args)
+      (cons (concat "[CRM] " (car args)) (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+#+end_src
+*** Completion UI
+#+begin_src emacs-lisp
+  (pkg vertico :require t)
+  (vertico-mode)
+  (evil-define-key '(insert normal) vertico-map
+    (kbd "M-RET") #'vertico-exit-input
+    (kbd "M-TAB") #'vertico-insert
+    (kbd "TAB") #'vertico-next
+    (kbd "<tab>") #'vertico-next
+    (kbd "S-TAB") #'vertico-previous
+    (kbd "<backtab>") #'vertico-previous)
 #+end_src
 *** Descriptions in Margins
 #+begin_src emacs-lisp
@@ -1093,69 +1112,72 @@ align with previews
 ** Buffer
 *** Completions
 #+begin_src emacs-lisp
-  (pkg company :require t)
-  (diminish 'company-mode)
-  (setf company-idle-delay 0
-        company-minimum-prefix-length 1
-        company-selection-wrap-around t)
-
-  (add-hook 'company-mode-hook 'company-tng-mode)
-  (evil-define-key 'insert company-mode-map
-    (kbd "TAB") #'company-complete)
-  (evil-define-key nil company-active-map
-    (kbd "<tab>") (interactive-chain #'company-complete-common #'company-select-next)
-    (kbd "TAB") #'company-select-next
-    (kbd "<backtab>") #'company-select-previous
-    (kbd "M-TAB") #'company-complete-common
-    (kbd "M-q") (interactive-chain #'company-select-first #'company-select-previous)
-    (kbd "<next>") #'company-next-page
-    (kbd "<prior>") #'company-previous-page
-    ;;Avoid conflicting keybinds
-    (kbd "<return>") nil
-    (kbd "RET") nil
-    (kbd "M-p"))
-  (global-company-mode)
+  (pkg corfu :require t)
+  (setf
+   corfu-cycle t
+   corfu-preselect-first nil
+   corfu-auto t
+   corfu-auto-delay 0
+   corfu-auto-prefix 0
+   corfu-separator ?\s
+   corfu-on-exact-match nil
+   corfu-quit-no-match nil
+   corfu-echo-documentation nil
+   corfu-preselect-first nil)
+  (evil-define-key 'insert 'global
+    (kbd "TAB") #'completion-at-point
+    (kbd "<tab>") #'completion-at-point)
+  (evil-define-key 'insert corfu-map
+    (kbd "TAB") #'corfu-next
+    (kbd "<tab>") #'corfu-next
+    (kbd "S-TAB") #'corfu-previous
+    (kbd "<backtab>") #'corfu-previous
+    (kbd "M-TAB") #'corfu-next
+    (kbd "M-<tab>") #'corfu-quit
+    (kbd "M-RET") #'corfu-insert
+    (kbd "M-<return>") #'corfu-insert)
+  (load "extensions/corfu-history.el")
+  (corfu-history-mode)
+  (global-corfu-mode)
+#+end_src
+*** Tab and Go Completion
+Binding these keys to insert the completion then exit allows for more fluid completion.
+Instead of accepting, you can just keep typing to get the same effect.
+#+begin_src emacs-lisp
+  (evil-define-key 'insert corfu-map
+    (kbd ".") (evil-define-command corfu-insert-ret () (corfu-insert) (insert "."))
+    (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (insert "\n"))
+    (kbd "<return") #'corfu-insert-ret
+    (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
+    (kbd "SPC") (evil-define-command corfu-insert-space () (corfu-insert) (insert " "))
+    (kbd "<space>") #'corfu-insert-space
+    (kbd "M-q") (evil-define-command corfu-0th () (corfu-first) (corfu-previous))
+    (kbd "/") (evil-define-command corfu-/ ()
+                (corfu-insert) (completion-at-point)))
+  ;; / is for file names but unbind it in lisp modes as it would conflict with symbol bindings.
+  (hook '(lisp-mode-hook emacs-lisp-mode-hook scheme-mode-hook)
+    (evil-define-key 'insert corfu-map (kbd "/") nil))
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
-  (pkg company-box :require t :github "jack-faller/company-box") ; use my fix for tng-mode docstrings
-  (diminish 'company-box-mode)
-  (add-hook 'company-tng-mode-hook #'company-box-mode)
-  (setf company-box-doc-delay 0.13
-        company-box-icons-all-the-icons
-        `((Unknown . ,(all-the-icons-material "find_in_page" :height 0.8 :face 'all-the-icons-purple))
-          (Text . ,(all-the-icons-material "text_fields" :height 0.8 :face 'all-the-icons-green))
-          (Method . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-          (Function . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-          (Constructor . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-          (Field . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-          (Variable . ,(all-the-icons-material "adjust" :height 0.8 :face 'all-the-icons-blue))
-          (Class . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
-          (Interface . ,(all-the-icons-material "settings_input_component" :height 0.8 :face 'all-the-icons-red))
-          (Module . ,(all-the-icons-material "view_module" :height 0.8 :face 'all-the-icons-red))
-          (Property . ,(all-the-icons-material "settings" :height 0.8 :face 'all-the-icons-red))
-          (Unit . ,(all-the-icons-material "straighten" :height 0.8 :face 'all-the-icons-red))
-          (Value . ,(all-the-icons-material "filter_1" :height 0.8 :face 'all-the-icons-red))
-          (Enum . ,(all-the-icons-material "plus_one" :height 0.8 :face 'all-the-icons-red))
-          (Keyword . ,(all-the-icons-material "filter_center_focus" :height 0.8 :face 'all-the-icons-red))
-          (Snippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-red))
-          (Color . ,(all-the-icons-material "color_lens" :height 0.8 :face 'all-the-icons-red))
-          (File . ,(all-the-icons-material "insert_drive_file" :height 0.8 :face 'all-the-icons-red))
-          (Reference . ,(all-the-icons-material "collections_bookmark" :height 0.8 :face 'all-the-icons-red))
-          (Folder . ,(all-the-icons-material "folder" :height 0.8 :face 'all-the-icons-red))
-          (EnumMember . ,(all-the-icons-material "people" :height 0.8 :face 'all-the-icons-red))
-          (Constant . ,(all-the-icons-material "pause_circle_filled" :height 0.8 :face 'all-the-icons-red))
-          (Struct . ,(all-the-icons-material "streetview" :height 0.8 :face 'all-the-icons-red))
-          (Event . ,(all-the-icons-material "event" :height 0.8 :face 'all-the-icons-red))
-          (Operator . ,(all-the-icons-material "control_point" :height 0.8 :face 'all-the-icons-red))
-          (TypeParameter . ,(all-the-icons-material "class" :height 0.8 :face 'all-the-icons-red))
-          ;; (Template   . ,(company-box-icons-image "Template.png"))))
-          (Yasnippet . ,(all-the-icons-material "short_text" :height 0.8 :face 'all-the-icons-green))
-          (ElispFunction . ,(all-the-icons-material "functions" :height 0.8 :face 'all-the-icons-red))
-          (ElispVariable . ,(all-the-icons-material "check_circle" :height 0.8 :face 'all-the-icons-blue))
-          (ElispFeature . ,(all-the-icons-material "stars" :height 0.8 :face 'all-the-icons-orange))
-          (ElispFace . ,(all-the-icons-material "format_paint" :height 0.8 :face 'all-the-icons-pink)))
-        company-box-icons-alist 'company-box-icons-all-the-icons)
+  (pkg kind-icon :require t)
+  (setf kind-icon-default-face 'corfu-default)
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+#+end_src
+*** More Backends
+#+begin_src emacs-lisp
+  (pkg cape)
+  (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
+        (list #'cape-file #'cape-dabbrev #'cape-keyword #'cape-tex #'cape-sgml #'cape-abbrev))
+#+end_src
+*** Documentation
+#+begin_src emacs-lisp
+  (pkg corfu-doc :require t)
+  (add-hook 'corfu-mode-hook #'corfu-doc-mode)
+  (setf corfu-doc-max-width 80)
+  (evil-define-key nil corfu-map
+    (kbd "M-d") #'corfu-doc-scroll-down
+    (kbd "M-u") #'corfu-doc-scroll-up)
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
@@ -1190,6 +1212,17 @@ These variables are recommended by =lsp-mode= to increase performance.
     (kbd "K") #'lsp-ui-doc-show
     (kbd "gK") #'lsp-describe-thing-at-point)
 #+end_src
+*** Corfu + Cape
+#+begin_src emacs-lisp
+  (setf lsp-completion-provider :none)
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless+initialism partial-completion basic)))
+  (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
+  (hook 'lsp-mode-hook
+   (delete #'lsp-completion-at-point completion-at-point-functions)
+   (push (cape-capf-buster #'lsp-completion-at-point) completion-at-point-functions))
+#+end_src
 *** Prettify
 #+begin_src emacs-lisp
   (pkg lsp-ui)
@@ -1201,14 +1234,21 @@ These variables are recommended by =lsp-mode= to increase performance.
         lsp-ui-sideline-show-diagnostics t
         lsp-ui-sideline-show-code-actions t)
 #+end_src
-** Completions history
+** Completion Filtering
 #+begin_src emacs-lisp
-  (pkg prescient :require t)
-  (prescient-persist-mode)
-  (pkg selectrum-prescient :require t)
-  (selectrum-prescient-mode)
-  (pkg company-prescient :require t)
-  (company-prescient-mode)
+  (pkg orderless :require t)
+  (orderless-define-completion-style orderless+initialism
+    (orderless-matching-styles '(orderless-initialism
+                                 orderless-literal
+                                 orderless-regexp)))
+  (setf completion-category-overrides
+        '((command (styles orderless+initialism))
+          (symbol (styles orderless+initialism))
+          (variable (styles orderless+initialism))))
+  (setf
+   completion-styles '(orderless+initialism partial-completion basic)
+   completion-category-defaults nil
+   completion-category-overrides nil)
 #+end_src
 ** Consult
 #+begin_src emacs-lisp
