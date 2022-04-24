@@ -206,54 +206,6 @@
    version-control t ; use versioned backups
    vc-make-backup-files t)
 #+end_src
-* Prefix Key Behaviour
-** Translate at Any Point in a Chord
-#+begin_src emacs-lisp
-  (defmacro translate (key states event &rest bindings)
-    "Translate (kbd key) to (kbd event) in states (quoted as in evil-define-key but not nil)."
-    (declare (indent 0))
-    `(progn (define-key key-translation-map
-              (kbd ,key) (lambda (_)
-                           (pcase evil-state
-                             (,(if (symbolp (cadr states))
-                                   states
-                                 (cons 'or (mapcar (lambda (a) `',a) (cadr states))))
-                              (kbd ,event))
-                             (_ (kbd ,key)))))
-            ,(if bindings `(translate ,@bindings))))
-#+end_src
-** Only Translate a Prefix
-#+begin_src emacs-lisp
-  (defun send-keys (keys)
-    "Type the key sequence (kbd keys)."
-    (setf prefix-arg current-prefix-arg)
-    (setf unread-command-events
-          (nconc (listify-key-sequence (kbd keys))
-                 unread-command-events)))
-  (defmacro prefix-translate (key states event &rest bindings)
-    "Translate but only for keys that appear at the start of chords."
-    (declare (indent 0))
-    `(with-eval-after-load 'evil
-       (evil-define-key ,states 'global
-         (kbd ,key) (lambda () (interactive) (send-keys ,event)))
-       ,@(if bindings (cddr (macroexpand-1 `(prefix-translate ,@bindings))))))
-#+end_src
-** Default Binds
-#+begin_src emacs-lisp
-  (prefix-translate
-    "SPC" '(normal visual) "<leader>"
-    "\\" '(normal visual) "<global-leader>"
-    "M-;" 'insert "<leader>"
-    "M-:" 'insert "<global-leader>")
-#+end_src
-** Universal Argument
-#+begin_src emacs-lisp
-  (define-key global-map (kbd "M-u") #'universal-argument)
-  (define-key universal-argument-map (kbd "C-u") nil)
-  (define-key universal-argument-map (kbd "M-u") #'universal-argument-more)
-  (with-eval-after-load 'evil-maps
-    (define-key evil-motion-state-map (kbd "M-u") nil))
-#+end_src
 * Tab Width
 #+begin_src emacs-lisp
   (setq-default tab-width 4)
@@ -585,10 +537,6 @@ align with previews
     (kbd "S") (evil-define-command evil-file-substitute () (evil-ex "%s/"))
     (kbd "gB") #'ibuffer
     (kbd "<global-leader>d") #'dired)
-
-  (evil-define-text-object evil-whole-buffer (count &optional beg end type)
-    "Whole buffer." (list (point-min) (point-max)))
-  (define-key evil-outer-text-objects-map (kbd "g") #'evil-whole-buffer)
 #+end_src
 ** Printing
 #+begin_src emacs-lisp
@@ -629,10 +577,39 @@ align with previews
     (kbd "C-w DEL") #'split-down
     (kbd "C-w S-DEL") #'split-up)
 #+end_src
-** Minibuffer
+** Text Objects
 #+begin_src emacs-lisp
-  (hook 'minibuffer-mode-hook
-    (push '(?g . ("\\(" . "\\)")) evil-surround-pairs-alist))
+  (targets-define-to regex-group "\\\\(" "\\\\)" pair
+                     :bind t :keys "g")
+  (push '(?g "\\(" . "\\)") evil-surround-pairs-alist)
+
+  (evil-define-text-object evil-whole-buffer (count &optional beg end type)
+    "Whole buffer." (list (point-min) (point-max)))
+  (define-key evil-outer-text-objects-map (kbd "o") #'evil-whole-buffer)
+#+end_src
+** Leader Keys
+#+begin_src emacs-lisp
+  (defun send-keys (keys)
+    "Type the key sequence (kbd keys)."
+    (setf prefix-arg current-prefix-arg)
+    (setf unread-command-events
+          (nconc (listify-key-sequence (kbd keys))
+                 unread-command-events)))
+  (with-eval-after-load 'evil
+    (evil-define-key '(normal visual) 'global
+      (kbd "SPC") (lambda () (interactive) (send-keys "<leader>"))
+      (kbd "\\") (lambda () (interactive) (send-keys "<global-leader>")))
+    (evil-define-key 'insert 'global
+      (kbd "M-;") (lambda () (interactive) (send-keys "<leader>"))
+      (kbd "M-:") (lambda () (interactive) (send-keys "<global-leader>"))))
+#+end_src
+** Universal Argument
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "M-u") #'universal-argument)
+  (define-key universal-argument-map (kbd "C-u") nil)
+  (define-key universal-argument-map (kbd "M-u") #'universal-argument-more)
+  (with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "M-u") nil))
 #+end_src
 * Center The Cursor
 #+begin_src emacs-lisp
