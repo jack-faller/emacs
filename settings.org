@@ -1199,8 +1199,8 @@ Instead of accepting, you can just keep typing to get the same effect.
   (add-hook 'corfu-mode-hook #'corfu-doc-mode)
   (setf corfu-doc-max-width 80)
   (evil-define-key nil corfu-map
-    (kbd "M-d") #'corfu-doc-scroll-down
-    (kbd "M-u") #'corfu-doc-scroll-up)
+    (kbd "M-d") #'corfu-doc-scroll-up
+    (kbd "M-u") #'corfu-doc-scroll-down)
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
