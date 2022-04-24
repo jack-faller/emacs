@@ -1066,7 +1066,7 @@ align with previews
     (evil-define-key 'insert corfu-map
       (kbd ".") nil
       (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))
-      (kbd "<return") #'corfu-eshell-ret
+      (kbd "<return>") #'corfu-eshell-ret
       (kbd "SPC") nil
       (kbd "<space>") nil))
 #+end_src
@@ -1160,10 +1160,11 @@ align with previews
     (kbd "<tab>") #'corfu-next
     (kbd "S-TAB") #'corfu-previous
     (kbd "<backtab>") #'corfu-previous
-    (kbd "M-TAB") #'corfu-next
-    (kbd "M-<tab>") #'corfu-quit
+    (kbd "M-TAB") #'corfu-complete
+    (kbd "M-<tab>") #'corfu-complete
     (kbd "M-RET") #'corfu-insert
-    (kbd "M-<return>") #'corfu-insert)
+    (kbd "M-<return>") #'corfu-insert
+    (kbd "M-q") #'corfu-reset)
   (load "extensions/corfu-history.el")
   (corfu-history-mode)
   (global-corfu-mode)
@@ -1178,13 +1179,7 @@ Instead of accepting, you can just keep typing to get the same effect.
     (kbd "<return") #'corfu-insert-ret
     (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
     (kbd "SPC") (evil-define-command corfu-insert-space () (corfu-insert) (insert " "))
-    (kbd "<space>") #'corfu-insert-space
-    (kbd "M-q") (evil-define-command corfu-0th () (corfu-first) (corfu-previous))
-    (kbd "/") (evil-define-command corfu-/ ()
-                (corfu-insert) (completion-at-point)))
-  ;; / is for file names but unbind it in lisp modes as it would conflict with symbol bindings.
-  (hook '(lisp-mode-hook emacs-lisp-mode-hook scheme-mode-hook)
-    (evil-define-key 'insert corfu-map (kbd "/") nil))
+    (kbd "<space>") #'corfu-insert-space)
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
@@ -1196,7 +1191,7 @@ Instead of accepting, you can just keep typing to get the same effect.
 #+begin_src emacs-lisp
   (pkg cape)
   (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
-        (list #'cape-file #'cape-dabbrev #'cape-keyword #'cape-tex #'cape-sgml #'cape-abbrev))
+        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-sgml #'cape-file))
 #+end_src
 *** Documentation
 #+begin_src emacs-lisp
