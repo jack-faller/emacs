@@ -1067,6 +1067,18 @@ align with previews
                            (set-mark end)
                            (call-interactively #'org-insert-structure-template))))
 #+end_src
+** Eshell
+#+begin_src emacs-lisp
+  (pkg pcmpl-args)
+  (hook 'eshell-mode-hook
+    (require 'pcmpl-args)
+    (evil-define-key 'insert corfu-map
+      (kbd ".") nil
+      (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))
+      (kbd "<return") #'corfu-eshell-ret
+      (kbd "SPC") nil
+      (kbd "<space>") nil))
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key :require t)
