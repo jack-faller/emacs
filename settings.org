@@ -1243,8 +1243,9 @@ These variables are recommended by =lsp-mode= to increase performance.
           '(orderless+initialism partial-completion basic)))
   (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
   (hook 'lsp-mode-hook
-   (delete #'lsp-completion-at-point completion-at-point-functions)
-   (push (cape-capf-buster #'lsp-completion-at-point) completion-at-point-functions))
+    (make-local-variable 'completion-at-point-functions)
+    (setf completion-at-point-functions (remove #'lsp-completion-at-point completion-at-point-functions))
+    (push (cape-capf-buster #'lsp-completion-at-point) completion-at-point-functions))
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
