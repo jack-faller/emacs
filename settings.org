@@ -1145,7 +1145,7 @@ Binding these keys to insert the completion then exit allows for more fluid comp
 Instead of accepting, you can just keep typing to get the same effect.
 #+begin_src emacs-lisp
   (evil-define-key 'insert corfu-map
-    (kbd ".") (evil-define-command corfu-insert-ret () (corfu-insert) (insert "."))
+    (kbd ".") (evil-define-command corfu-insert-dot () (corfu-insert) (insert "."))
     (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (insert "\n"))
     (kbd "<return") #'corfu-insert-ret
     (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
