@@ -389,9 +389,9 @@ Allow actions that act on surrounding delimiters: =ds=, =cs=, =ys=, etc.
 #+begin_src emacs-lisp
   (pkg evil-surround :require t)
   (setq-default evil-surround-pairs-alist
-                (append '((?“ . ("“" . "”"))
-                          (?” . ("“ " . " ”")))
-                        evil-surround-pairs-alist))
+                `((?“ . ("“" . "”"))
+                  (?” . ("“ " . " ”"))
+                  ,@evil-surround-pairs-alist))
   (global-evil-surround-mode 1)
 #+end_src
 *** Text Objects
@@ -581,7 +581,8 @@ align with previews
 #+begin_src emacs-lisp
   (targets-define-to regex-group "\\\\(" "\\\\)" pair
                      :bind t :keys "g")
-  (push '(?g "\\(" . "\\)") evil-surround-pairs-alist)
+  (setq-default evil-surround-pairs-alist
+                `((?g "\\(" . "\\)") ,@evil-surround-pairs-alist))
 
   (evil-define-text-object evil-whole-buffer (count &optional beg end type)
     "Whole buffer." (list (point-min) (point-max)))
@@ -804,9 +805,9 @@ align with previews
 
     (setf require-final-newline nil)
     (setf evil-surround-pairs-alist
-          (append '((?m . ("$(" . ")$"))
-                    (?M . ("$( " . " )$")))
-                  evil-surround-pairs-alist))
+          `((?m . ("$(" . ")$"))
+            (?M . ("$( " . " )$"))
+            ,@evil-surround-pairs-alist))
     (setf major-mode 'anki-mode)
     (setf mode-name "Anki")
     (run-hooks 'anki-mode-hook))
