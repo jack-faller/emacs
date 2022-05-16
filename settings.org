@@ -703,6 +703,12 @@ align with previews
       (kbd "<leader>o") #'lispyville-open-below-list
       (kbd "<leader>O") #'lispyville-open-above-list))
 #+end_src
+*** Rainbow Delimiters
+#+begin_src emacs-lisp
+  (pkg rainbow-delimiters)
+  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'lisp-data-mode-hook #'rainbow-delimiters-mode)
+#+end_src
 ** Common Lisp
 #+begin_src emacs-lisp
   (pkg sly)
