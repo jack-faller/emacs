@@ -1291,7 +1291,8 @@ These variables are recommended by =lsp-mode= to increase performance.
   (pkg consult)
   (pkg consult-flycheck)
   (pkg consult-projectile)
-  (evil-collection-consult-setup)
+  (with-eval-after-load 'consult
+    (evil-collection-consult-setup))
 
   (evil-define-key 'normal flycheck-mode-map
     (kbd "<leader>e") #'consult-flycheck)
@@ -1402,6 +1403,7 @@ These variables are recommended by =lsp-mode= to increase performance.
   (defun webpaste (arg)
     "Paste the buffer or region if active. When ARG, prompt for a duration until expiration."
     (interactive "P")
+    (require 'webpaste)
     (let ((old-duration (get-webpaste-duration)))
       (when arg
         (-> (completing-read "Duration: " webpaste-durations)
@@ -1424,7 +1426,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 * Spellcheck
 ** Flyspell
 #+begin_src emacs-lisp
-  (pkg flyspell :require t)
+  (pkg flyspell)
   (add-hook 'prog-mode-hook #'flyspell-prog-mode)
   (add-hook 'text-mode-hook #'flyspell-mode)
   (defvar dict "en_GB"
