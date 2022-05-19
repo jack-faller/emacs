@@ -1550,7 +1550,7 @@ These variables are recommended by =lsp-mode= to increase performance.
   (defvar guide-idle-timer nil)
   (defun guide-dispatch ()
     (when guide-idle-timer (cancel-timer guide-idle-timer))
-    (--> (if (eq 'insert evil-state) guide-insert-idle-time guide-idle-time)
+    (--> (if (eq (bound-and-true-p evil-state) 'insert) guide-insert-idle-time guide-idle-time)
          (run-with-idle-timer it nil #'refresh-guides)
          (setf guide-idle-timer it)))
   (defun guide-mode ()
