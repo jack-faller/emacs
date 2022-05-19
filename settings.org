@@ -1122,6 +1122,11 @@ align with previews
   (pkg marginalia :require t)
   (marginalia-mode)
 #+end_src
+*** Icons
+#+begin_src emacs-lisp
+  (pkg all-the-icons-completion)
+  (all-the-icons-completion-mode)
+#+end_src
 ** Buffer
 *** Completions
 #+begin_src emacs-lisp
