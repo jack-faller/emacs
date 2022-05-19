@@ -1047,6 +1047,7 @@ align with previews
   (pkg pcmpl-args)
   (hook 'eshell-mode-hook
     (require 'pcmpl-args)
+    (setq-local corfu-map (copy-keymap corfu-map))
     (evil-define-key 'insert corfu-map
       (kbd ".") nil
       (kbd "RET") (evil-define-command corfu-eshell-ret () (corfu-insert) (eshell-send-input))
@@ -1159,7 +1160,7 @@ Instead of accepting, you can just keep typing to get the same effect.
 #+begin_src emacs-lisp
   (evil-define-key 'insert corfu-map
     (kbd ".") (evil-define-command corfu-insert-dot () (corfu-insert) (insert "."))
-    (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (insert "\n"))
+    (kbd "RET") (evil-define-command corfu-insert-ret () (corfu-insert) (newline nil t))
     (kbd "<return>") #'corfu-insert-ret
     (kbd "<escape>") (evil-define-command corfu-insert-escape () (corfu-insert) (evil-normal-state))
     (kbd "SPC") (evil-define-command corfu-insert-space () (corfu-insert) (insert " "))
@@ -1174,12 +1175,39 @@ Instead of accepting, you can just keep typing to get the same effect.
 *** More Backends
 #+begin_src emacs-lisp
   (pkg cape)
+  (defun my/cape-file (&optional interactive)
+    (let ((output (cape-file interactive)))
+      (when output
+        `(,(car output) ,(cadr output)
+          ,(let ((f (caddr output)))
+             (lambda (str pred action)
+               (let ((result (funcall f str pred action)))
+                 (cond
+                  ((eq action t)
+                   (mapcar
+                    (lambda (i)
+                      (if (directory-name-p i)
+                          (propertize (substring i 0 (- (length i) 1))
+                                      :is-file t)
+                        i))
+                    result))
+                  ((eq action 'metadata)
+                   '(metadata (category . file)))
+                  (t result)))))
+          :affixation-function
+          ,(lambda (list)
+             (mapcar (lambda (s)
+                       (if (get-text-property 0 :is-file s)
+                           (list (concat s "/") "" "")
+                         (list s "" "")))
+                     list))
+          ,@(cdddr output)))))
   (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
-        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-sgml #'cape-file))
+        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-sgml #'my/cape-file))
 #+end_src
 *** Documentation
 #+begin_src emacs-lisp
-  (pkg corfu-doc :require t)
+  (pkg corfu-doc)
   (add-hook 'corfu-mode-hook #'corfu-doc-mode)
   (setf corfu-doc-max-width 80)
   (evil-define-key nil corfu-map
