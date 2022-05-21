@@ -1458,6 +1458,17 @@ These variables are recommended by =lsp-mode= to increase performance.
   ;; todo, maybe re-write this myself
   ;; (pkg flycheck-grammarly)
 #+end_src
+* Ebangs
+#+begin_src emacs-lisp
+  (pkg ebangs :github "jack-faller/ebangs" :require t)
+  (ebangs-global-minor-mode)
+  (evil-define-key 'insert 'global
+    (kbd "<global-leader>j") #'ebangs-complete)
+  (evil-define-key 'normal 'global
+    (kbd "<global-leader>jc") #'ebangs-complete
+    (kbd "<global-leader>jt") #'ebangs-show-file-todos
+    (kbd "<global-leader>jT") #'ebangs-show-todos)
+#+end_src
 * Indent Guides
 #+begin_src emacs-lisp
   (defvar guide-char ?\x2502)
