@@ -14,7 +14,8 @@
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (defvar all-the-icons-fonts-installed? t)
-  (setf display-warning-minimum-level :error)
+  (setf display-warning-minimum-level :error
+        straight-vc-git-default-protocol 'ssh)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
