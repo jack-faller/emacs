@@ -482,7 +482,8 @@ align with previews
     (kbd "U") #'evil-redo
     (kbd "<escape>") #'evil-ex-nohighlight
     (kbd "<global-leader>s") (evil-define-command goto-scratch-buffer ()
-                               (switch-to-buffer "*scratch*"))
+                               (switch-to-buffer "*scratch*")
+                               (unless (eq major-mode 'emacs-lisp-mode) (emacs-lisp-mode)))
     (kbd "<global-leader>b") #'bookmark-jump
     (kbd "<global-leader>B") #'bookmark-set
     (kbd "<global-leader>td") #'toggle-debug-on-error
