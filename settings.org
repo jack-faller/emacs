@@ -599,6 +599,8 @@ align with previews
   (add-hook 'common-lisp-mode-hook #'lispyville-mode)
   (add-hook 'lisp-mode-hook #'lispyville-mode)
   (hook 'lispyville-mode-hook
+    (setq-local key-translation-map (copy-keymap key-translation-map))
+    (define-key key-translation-map (kbd "£") (kbd "λ"))
     (cl-macrolet ((defto (name key)
                     `(targets-define-to ,name ',name nil object :bind t
                                         :keys ,key :hooks lispyville-mode-hook)))
@@ -1169,7 +1171,7 @@ Instead of accepting, you can just keep typing to get the same effect.
                      list))
           ,@(cdddr output)))))
   (mapc (lambda (x) (add-to-list 'completion-at-point-functions x))
-        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-sgml #'my/cape-file))
+        (list #'cape-dabbrev #'cape-abbrev #'cape-tex #'cape-rfc1345 #'my/cape-file))
 #+end_src
 *** Documentation
 #+begin_src emacs-lisp
@@ -1220,10 +1222,8 @@ These variables are recommended by =lsp-mode= to increase performance.
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless+initialism partial-completion basic)))
   (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
-  (hook 'lsp-mode-hook
-    (make-local-variable 'completion-at-point-functions)
-    (setf completion-at-point-functions (remove #'lsp-completion-at-point completion-at-point-functions))
-    (push (cape-capf-buster #'lsp-completion-at-point) completion-at-point-functions))
+  (with-eval-after-load 'lsp
+    (fset 'lsp-completion-at-point (cape-capf-buster (symbol-function 'lsp-completion-at-point))))
 #+end_src
 *** Prettify
 #+begin_src emacs-lisp
