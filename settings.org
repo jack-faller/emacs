@@ -8,7 +8,6 @@
   (menu-bar-mode -1)
   (scroll-bar-mode -1)
   (tool-bar-mode -1)
-  (save-place-mode 1)
 #+end_src
 * Fix Slow Frame Manipulation in Pgtk-Emacs
 #+begin_src emacs-lisp
@@ -312,7 +311,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
    )
 
   (pkg evil :require t)
-
+  
   (evil-mode 1)
   (setf evil-emacs-state-cursor 'box
         evil-normal-state-cursor 'box
@@ -328,12 +327,6 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
           (enh-ruby-mode ruby-send-region)
           (python-mode python-shell-send-region)
           (julia-mode julia-shell-run-region)))
-  (evil-define-key 'normal evil-ex-search-keymap
-    "j" #'next-line-or-history-element
-    "k" #'previous-line-or-history-element)
-  (evil-define-key 'motion 'global
-    (kbd "M-e") #'evil-backward-word-end
-    (kbd "M-E") #'evil-backward-WORD-end)
 #+end_src
 ** Evil Collection
 #+begin_src emacs-lisp
@@ -414,6 +407,10 @@ align with previews
     (kbd "g M-u") #'evil-titlecase)
 #+end_src
 * Misc Settings
+** Save Location in Closed Buffers
+#+begin_src emacs-lisp
+  (save-place-mode 1)
+#+end_src
 ** Variables
 #+begin_src emacs-lisp
   (setf
@@ -433,6 +430,10 @@ align with previews
 * Global Binds
 ** Misc
 #+begin_src emacs-lisp
+  (evil-define-key 'normal evil-ex-search-keymap
+    "j" #'next-line-or-history-element
+    "k" #'previous-line-or-history-element)
+
   (evil-define-key '(normal visual) 'global
     (kbd "<leader>;") #'execute-extended-command
     "ge" (evil-define-operator evil-eval (beg end)
@@ -476,7 +477,9 @@ align with previews
     "[[" (evil-define-motion evil-previous-open-bracket (count)
            "Go to [count] previous unmatched '{'."
            :type exclusive
-           (evil-up-paren ?\[ ?\] (- (or count 1)))))
+           (evil-up-paren ?\[ ?\] (- (or count 1))))
+    (kbd "M-e") #'evil-backward-word-end
+    (kbd "M-E") #'evil-backward-WORD-end)
 
   (evil-define-key 'normal 'global
     (kbd "U") #'evil-redo
