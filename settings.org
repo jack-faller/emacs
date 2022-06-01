@@ -416,8 +416,6 @@ align with previews
   (setf
    ;; Sentence regexes only allow double spaced sentences, stop that.
    sentence-end-double-space nil
-   ;; Add more detail to describe-* functions.
-   sentence-end-double-space nil
    ;; This also highlights a lot of non-error things.
    next-error-message-highlight t
    ;; Ensure documentation is loaded from autoloaded functions
