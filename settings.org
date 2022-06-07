@@ -147,6 +147,7 @@
 * Put Custom Defs in a Non-git-tracked File
 #+begin_src emacs-lisp
   (setf custom-file (ensure-file (concat user-emacs-directory "custom.el")))
+  (load (concat user-emacs-directory "custom.el"))
 #+end_src
 * Deal With Backups
 #+begin_src emacs-lisp
