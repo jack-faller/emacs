@@ -876,6 +876,11 @@ align with previews
           org-appear-autokeywords
           org-appear-autosubmarkers))
 #+end_src
+*** Toggle Latex Fragments
+#+begin_src emacs-lisp
+  (pkg org-fragtog)
+  (add-hook #'org-mode-hook #'org-fragtog-mode)
+#+end_src
 *** Roam
 #+begin_src emacs-lisp
   (pkg org-roam)
