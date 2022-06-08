@@ -333,7 +333,7 @@ Use ~undo-tree~ and ~goto-chg~ to get the related features in evil.
 #+begin_src emacs-lisp
   (setf evil-collection-setup-minibuffer t)
   (pkg evil-collection :require t)
-  (diminish 'evil-collection-unimpaired-mode)
+  (with-eval-after-load 'evil-collection-unimpaired (diminish 'evil-collection-unimpaired-mode))
   (setf evil-collection-mode-list (delete 'lispy evil-collection-mode-list))
   (evil-collection-init)
 #+end_src
@@ -588,7 +588,7 @@ align with previews
 ** Lisp
 #+begin_src emacs-lisp
   (pkg lispy)
-  (diminish 'lispy-mode)
+  (with-eval-after-load 'lispy (diminish 'lispy-mode))
   (set-tab-width-in lisp-mode 2)
   (set-tab-width-in emacs-lisp-mode 2)
   (set-tab-width-in common-lisp-mode 2)
@@ -596,7 +596,7 @@ align with previews
   (set-tab-width-in scheme-mode 2)
 
   (pkg lispyville)
-  (diminish 'lispyville-mode)
+  (with-eval-after-load 'lispyville (diminish 'lispyville-mode))
   (add-hook 'emacs-lisp-mode-hook #'lispyville-mode)
   (add-hook 'common-lisp-mode-hook #'lispyville-mode)
   (add-hook 'lisp-mode-hook #'lispyville-mode)
@@ -838,7 +838,7 @@ align with previews
 ** Org
 *** Org-mode
 #+begin_src emacs-lisp
-  (diminish 'org-indent-mode)
+  (with-eval-after-load 'org-indent (diminish 'org-indent-mode))
   (hook 'org-mode-hook
     (org-indent-mode)
     (setq-local electric-pair-inhibit-predicate
@@ -958,6 +958,7 @@ align with previews
 *** Evil Integration
 #+begin_src emacs-lisp
   (pkg evil-org)
+  (with-eval-after-load 'evil-org (diminish 'evil-org-mode))
   (add-hook 'org-mode-hook 'evil-org-mode)
   (after-load evil-org
     (require 'evil-org-agenda)
@@ -1186,7 +1187,7 @@ Instead of accepting, you can just keep typing to get the same effect.
 #+end_src
 ** Eldoc
 #+begin_src emacs-lisp
-  (diminish 'eldoc-mode)
+  (with-eval-after-load 'eldoc (diminish 'eldoc-mode))
   (setf eldoc-idle-delay 0)
 #+end_src
 ** Language Server Support (LSP)
@@ -1304,6 +1305,7 @@ These variables are recommended by =lsp-mode= to increase performance.
 ** Projects
 #+begin_src emacs-lisp
   (pkg projectile :require t)
+  (diminish 'projectile-mode)
   (projectile-mode)
   (setf compilation-scroll-output t)
   (evil-define-key 'normal 'global
