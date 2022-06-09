@@ -180,12 +180,10 @@
 #+end_src
 ** Font
 #+begin_src emacs-lisp
-  (add-to-list 'default-frame-alist '(font . "Iosevka 9"))
-  (custom-theme-set-faces
-   'user
+  (custom-set-faces
    '(variable-pitch ((t (:family "Charter" :height 95))))
-   '(fixed-pitch ((t (:family "Iosevka" :height 83)))))
-  (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :height 83))
+   '(fixed-pitch ((t (:family "Iosevka" :height 83))))
+   '(default ((t (:family "Iosevka" :height 83)))))
 #+end_src
 ** Ligatures
 #+begin_src emacs-lisp
