@@ -589,10 +589,13 @@ align with previews
 
   ;; these should work on their own but produce jittery scrolling
   ;; when combined with ccm they make it work in variable-pitch files
-  (setf scroll-preserve-screen-position t
-        scroll-conservatively 0
-        maximum-scroll-margin 0.5
-        scroll-margin 99999)
+  (hook 'buffer-face-mode-hook
+    (when (eq buffer-face-mode-face 'variable-pitch)
+      (setq-local
+       scroll-preserve-screen-position t
+       scroll-conservatively 0
+       maximum-scroll-margin 0.5
+       scroll-margin 99999)))
 #+end_src
 * Major Modes
 ** Lisp
