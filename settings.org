@@ -892,6 +892,7 @@ align with previews
   ;; Don't make text bigger after 8 levels.
   (setf org-cycle-level-faces nil)
   (setf org-fontify-done-headline nil)
+  (setf org-html-validation-link nil)
 #+end_src
 *** Hide Org Markup
 #+begin_src emacs-lisp
@@ -1008,6 +1009,7 @@ align with previews
       (kbd "<leader>.") #'org-time-stamp
       (kbd "<leader>l") #'org-insert-link)
     (evil-define-key 'normal org-mode-map
+      (kbd "<leader>x") #'org-export-dispatch
       (kbd "<leader>i") #'org-display-inline-images
       (kbd "<leader>I") #'org-remove-inline-images
       (kbd "<leader>m") #'org-latex-preview
