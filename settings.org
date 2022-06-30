@@ -211,7 +211,6 @@
 #+end_src
 ** Line Numbers
 #+begin_src emacs-lisp
-  (pkg display-line-numbers :require t)
   (global-display-line-numbers-mode 1)
   (setq-default display-line-numbers t
                 display-line-numbers-widen t
