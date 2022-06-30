@@ -181,7 +181,7 @@
 ** Font
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(variable-pitch ((t (:family "Charter" :height 95))))
+   '(variable-pitch ((t (:family "Crimson" :height 110))))
    '(fixed-pitch ((t (:family "Iosevka" :height 83))))
    '(default ((t (:family "Iosevka" :height 83)))))
 #+end_src
@@ -582,19 +582,8 @@ align with previews
   (pkg centered-cursor-mode :require t)
   (diminish 'centered-cursor-mode)
   (global-centered-cursor-mode 1)
-  (push #'evil-insert-state-p ccm-inhibit-centering-when)
   (push #'lsp-ui-doc--handle-mouse-movement ccm-ignored-commands)
   (push #'abort-recursive-edit ccm-ignored-commands)
-
-  ;; these should work on their own but produce jittery scrolling
-  ;; when combined with ccm they make it work in variable-pitch files
-  (hook 'buffer-face-mode-hook
-    (when (eq buffer-face-mode-face 'variable-pitch)
-      (setq-local
-       scroll-preserve-screen-position t
-       scroll-conservatively 0
-       maximum-scroll-margin 0.5
-       scroll-margin 99999)))
 #+end_src
 * Major Modes
 ** Lisp
