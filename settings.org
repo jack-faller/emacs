@@ -1064,6 +1064,45 @@ align with previews
     (kbd "<space>") nil
     (kbd "SPC") nil)
 #+end_src
+** ERC
+#+begin_src emacs-lisp
+  (pkg password-store)
+  (setf erc-nick "JackFaller"
+        erc-user-full-name "Jack Faller"
+        erc-track-shorten-start 10
+        erc-prompt (lambda () (concat "[" (buffer-name) "]"))
+        erc-auto-query 'bury
+        erc-fill-function #'erc-fill-static
+        erc-fill-static-center 20)
+
+  (defun freenode ()
+    (interactive)
+    (erc-tls
+     :server "irc.freenode.net"
+     :port 6697
+     :password (password-store-get "irc/freenode")))
+
+  (pkg erc-nick-notify)
+
+  (hook 'erc-mode-hook
+    (require 'erc-nick-notify)
+    (require 'erc-pcomplete)
+    (pcomplete-erc-setup)
+    (erc-completion-mode 1)
+    (erc-spelling-mode 1)
+    (setq-local corfu-map (copy-keymap corfu-map))
+    (evil-define-key 'insert corfu-map
+      (kbd "RET") (evil-define-command corfu-erc-ret () (corfu-insert) (erc-send-current-line))
+      (kbd "<return>") #'corfu-erc-ret))
+
+  (evil-define-key 'insert erc-mode-map
+    (kbd "<leader>RET") #'newline
+    (kbd "<leader><return>") #'newline)
+  (evil-define-key 'normal erc-mode-map
+    (kbd "<leader>b") #'erc-switch-to-buffer
+    (kbd "<leader>n") #'erc-channel-names
+    (kbd "<leader>q") #'erc-quit-server)
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key :require t)
