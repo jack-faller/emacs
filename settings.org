@@ -1161,6 +1161,16 @@ Instead of accepting, you can just keep typing to get the same effect.
   (setf kind-icon-default-face 'corfu-default)
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
 #+end_src
+*** Fix Pcomplete
+Cape suggests this snippet.
+#+begin_src emacs-lisp
+  ;; Silence the pcomplete capf, no errors or messages!
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+  ;; Ensure that pcomplete does not write to the buffer
+  ;; and behaves as a pure `completion-at-point-function'.
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+#+end_src
 *** More Backends
 #+begin_src emacs-lisp
   (pkg cape)
