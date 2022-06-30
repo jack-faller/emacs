@@ -708,8 +708,7 @@ align with previews
   (custom-set-default 'rustic-indent-offset 2)
   (setq-mode-local rustic-mode mode-print-formatter
                    (lambda (text)
-                     (let ((braces ""))
-                       (concat "println!(\"{:#?}\", (" text "));"))))
+                     (concat "println!(\"{:#?}\", (" text "));")))
 
   (pkg flycheck-rust)
   (add-hook 'rust-mode-hook 'flycheck-rust-setup)
