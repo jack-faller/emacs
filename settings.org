@@ -734,8 +734,8 @@ align with previews
   (setq-mode-local csharp-mode lsp-ui-sideline-show-hover nil)
   (setq-mode-local csharp-mode mode-print-formatter
                    (lambda (str)
-                     (setf str (replace-regexp-in-string ";" "," str))
-                     (concat "GD.PrintS(" str ");")))
+                     (setf str (replace-regexp-in-string ";" " +" str))
+                     (concat "Console.WriteLine(" str ");")))
   ;; (setf lsp-csharp-server-path "/usr/bin/omnisharp")
   (add-hook 'csharp-mode-hook 'lsp)
   (set-tab-width-in csharp-mode 4)
