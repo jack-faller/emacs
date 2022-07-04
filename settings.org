@@ -681,8 +681,7 @@ align with previews
 *** Rainbow Delimiters
 #+begin_src emacs-lisp
   (pkg rainbow-delimiters)
-  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'lisp-data-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'lispyville-mode-hook #'rainbow-delimiters-mode)
 #+end_src
 ** Common Lisp
 #+begin_src emacs-lisp
@@ -745,7 +744,6 @@ align with previews
   (pkg geiser)
   (add-hook 'scheme-mode-hook #'geiser-mode)
   (add-hook 'scheme-mode-hook #'lispyville-mode)
-  (add-hook 'geiser-mode-hook #'run-geiser)
   (setf geiser-mode-start-repl-p t)
 
   (pkg geiser-guile)
