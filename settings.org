@@ -613,18 +613,15 @@ align with previews
   (add-hook 'emacs-lisp-mode-hook #'lispyville-mode)
   (add-hook 'common-lisp-mode-hook #'lispyville-mode)
   (add-hook 'lisp-mode-hook #'lispyville-mode)
-  (hook 'lispyville-mode-hook
-    (setq-local key-translation-map (copy-keymap key-translation-map))
-    (define-key key-translation-map (kbd "£") (kbd "λ"))
-    (cl-macrolet ((defto (name key)
-                    `(targets-define-to ,name ',name nil object :bind t
-                                        :keys ,key :hooks lispyville-mode-hook)))
-      (defto lispyville-comment "c")
-      (defto lispyville-atom "a")
-      (defto lispyville-list "f")
-      (defto lispyville-sexp "x")
-      (defto lispyville-function "d")
-      (defto lispyville-string "s")))
+  (cl-macrolet ((defto (name key)
+                  `(targets-define-to ,name ',name nil object :bind t
+                                      :keys ,key :hooks lispyville-mode-hook)))
+    (defto lispyville-comment "c")
+    (defto lispyville-atom "a")
+    (defto lispyville-list "f")
+    (defto lispyville-sexp "x")
+    (defto lispyville-function "d")
+    (defto lispyville-string "s"))
   (after-load lispyville
     (lispyville-set-key-theme '(operators
                                 c-w
