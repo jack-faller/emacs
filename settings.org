@@ -182,8 +182,8 @@
 #+begin_src emacs-lisp
   (custom-set-faces
    '(variable-pitch ((t (:family "Crimson" :height 110))))
-   '(fixed-pitch ((t (:family "Iosevka" :height 83))))
-   '(default ((t (:family "Iosevka" :height 83)))))
+   '(fixed-pitch ((t (:family "Iosevka" :height 87))))
+   '(default ((t (:family "Iosevka" :height 87)))))
 #+end_src
 ** Ligatures
 #+begin_src emacs-lisp
