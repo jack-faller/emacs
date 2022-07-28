@@ -264,6 +264,11 @@
   (setq-default fill-column 80)
   (global-visual-line-mode)
 #+end_src
+** Make Cursor Shapes Work in Terminal
+#+begin_src emacs-lisp
+  (pkg term-cursor :github "h0d/term-cursor.el" :require t)
+  (global-term-cursor-mode)
+#+end_src
 * Count Keys
 #+begin_src emacs-lisp
   (pkg keyfreq :require t)
