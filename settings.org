@@ -1292,7 +1292,7 @@ These variables are recommended by =lsp-mode= to increase performance.
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless+initialism partial-completion basic)))
   (add-hook 'lsp-completion-mode #'my/lsp-mode-setup-completion)
-  (with-eval-after-load 'lsp
+  (with-eval-after-load 'lsp-mode
     (fset 'lsp-completion-at-point (cape-capf-buster (symbol-function 'lsp-completion-at-point))))
 #+end_src
 *** Prettify
