@@ -1113,6 +1113,15 @@ align with previews
     (kbd "<leader>n") #'erc-channel-names
     (kbd "<leader>q") #'erc-quit-server)
 #+end_src
+** C
+#+begin_src emacs-lisp
+  (hook 'c-mode-hook
+    (indent-tabs-mode -1)
+    (lsp))
+  (setq-mode-local c-mode lsp-ui-sideline-enable nil)
+  (evil-define-key '(normal insert) c-mode-map
+    (kbd "<leader>s") #'ff-find-other-file)
+#+end_src
 * Show Keyboard Shortcuts
 #+begin_src emacs-lisp
   (pkg which-key :require t)
