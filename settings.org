@@ -591,6 +591,10 @@ align with previews
   (push #'abort-recursive-edit ccm-ignored-commands)
 #+end_src
 * Major Modes
+** Prog
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+#+end_src
 ** Lisp
 #+begin_src emacs-lisp
   (pkg lispy)
