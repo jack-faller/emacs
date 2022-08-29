@@ -648,7 +648,7 @@ align with previews
                (insert " ")
                (backward-char 1)
                (evil-insert 1)))))
-                                          ; TODO make these work for visual
+    ;; TODO make these work for visual
     (evil-define-key '(visual normal) lispyville-mode-map
       (kbd "<leader>(") #'lispy-wrap-round
       (kbd "<leader>{") #'lispy-wrap-braces
@@ -675,6 +675,8 @@ align with previews
       (kbd "<leader>l") #'lispyville-insert-at-end-of-list
       (kbd "<leader>o") #'lispyville-open-below-list
       (kbd "<leader>O") #'lispyville-open-above-list))
+  (evil-define-key '(insert) lispyville-mode-map
+    (kbd "£") (lambda () (interactive) (insert "λ")))
 #+end_src
 *** Rainbow Delimiters
 #+begin_src emacs-lisp
