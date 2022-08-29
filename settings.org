@@ -1408,6 +1408,18 @@ These variables are recommended by =lsp-mode= to increase performance.
     (kbd "<f5>") #'projectile-run-project
     (kbd "<f6>") #'projectile-compile-project
     (kbd "<f7>") #'projectile-configure-project)
+  (cl-mapc
+   (lambda (cmd map)
+     (eval `(evil-define-command ,(symcat 'my/ cmd '-default) (arg)
+              (interactive "P")
+              (remhash (projectile-compilation-dir) ,map)
+              (,cmd arg))))
+   '(projectile-run-project projectile-compile-project projectile-configure-project)
+   '(projectile-run-cmd-map projectile-compilation-cmd-map projectile-configure-cmd-map))
+  (evil-define-key '(insert normal) projectile-mode-map
+    (kbd "S-<f5>") #'my/projectile-run-project-default
+    (kbd "S-<f6>") #'my/projectile-compile-project-default
+    (kbd "S-<f7>") #'my/projectile-configure-project-default)
   (dolist (map evil-collection-compile-maps)
     (evil-define-key 'normal map
       (kbd "q") (interactive-chain #'kill-compilation #'quit-window)))
